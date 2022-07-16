@@ -1,0 +1,28 @@
+name: Maman14
+
+on: [push]
+
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-2019]
+    runs-on: ${{ matrix.os }} 
+    steps:
+      - name: Bazel cache
+        uses: actions/cache@v2
+        env:
+          cache-name: bazel-cache
+        with:
+          path: |
+            ~/.cache/bazelisk
+            ~/.cache/bazel
+          key: ${{ runner.os }}-${{ env.cache-name }}
+
+      - uses: actions/checkout@v2
+
+      - name: Test client
+        run: bazel test //Maman14/Client/tests:all
+
+      - name: Test server
+        run: bazel test //Maman14/Server/tests:all
