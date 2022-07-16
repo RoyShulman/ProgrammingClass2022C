@@ -1,0 +1,1 @@
+build --cxxopt="-Wall" --cxxopt="-Werror" --cxxopt="-Wextra" --cxxopt="-Wpedantic" --cxxopt="-Wno-error=missing-field-initializers" --cxxopt="-Wno-error=deprecated-copy-with-user-provided-copy"
