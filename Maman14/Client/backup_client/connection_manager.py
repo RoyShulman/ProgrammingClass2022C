@@ -1,15 +1,12 @@
 import socket
 from abc import ABC, abstractmethod
-from ipaddress import ip_address
+from ipaddress import IPv4Address
+from typing import Tuple
 
 
 class AbstractConnectionManager(ABC):
-    def __init__(self, ip: str, port: int) -> None:
-        self.ip = ip_address(ip)
-        self.port = port
-
     @abstractmethod
-    def connect(self) -> None:
+    def connect(self, dst: Tuple[IPv4Address, int]) -> None:
         raise NotImplementedError
 
     @abstractmethod
@@ -26,12 +23,11 @@ class AbstractConnectionManager(ABC):
 
 
 class NetworkConnectionManager(AbstractConnectionManager):
-    def __init__(self, ip: str, port: int) -> None:
-        super().__init__(ip, port)
+    def __init__(self) -> None:
         self.socket = socket.socket()
 
-    def connect(self) -> None:
-        self.socket.connect((self.ip, self.port))
+    def connect(self, dst: Tuple[IPv4Address, int]) -> None:
+        self.socket.connect(dst)
 
     def send(self, data: bytes) -> None:
         self.socket.send(data)

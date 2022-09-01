@@ -1,6 +1,6 @@
 import unittest
 import os
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, ip_address
 from backup_client.server_info import ServerInfo, InvalidServerInfo, ReadingServerInfoFileException
 
 
@@ -46,7 +46,8 @@ class ServerInfoTest(unittest.TestCase):
 
     def test_to_raw(self):
         server_info = ServerInfo.from_address("127.0.0.1:1337")
-        self.assertEqual(("127.0.0.1", 1337), server_info.to_raw())
+        self.assertEqual((ip_address("127.0.0.1"), 1337),
+                         server_info.to_tuple())
 
 
 if __name__ == "__main__":

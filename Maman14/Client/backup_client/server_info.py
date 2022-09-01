@@ -42,6 +42,5 @@ class ServerInfo:
         except Exception as e:
             raise InvalidServerInfo(str(e))
 
-
-    def to_raw(self) -> Tuple[str, int]:
-        return str(self.ip), self.port
+    def to_tuple(self) -> Tuple[IPv4Address, int]:
+        return self.ip, self.port
