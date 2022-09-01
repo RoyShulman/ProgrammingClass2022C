@@ -44,6 +44,10 @@ class ServerInfoTest(unittest.TestCase):
         self.assertRaises(InvalidServerInfo,
                           ServerInfo.from_address, "1.2.3.4:80a")
 
+    def test_to_raw(self):
+        server_info = ServerInfo.from_address("127.0.0.1:1337")
+        self.assertEqual(("127.0.0.1", 1337), server_info.to_raw())
+
 
 if __name__ == "__main__":
     unittest.main()

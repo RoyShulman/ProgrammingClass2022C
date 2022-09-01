@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from ipaddress import IPv4Address
+from typing import Tuple
 
 
 class InvalidServerInfo(Exception):
@@ -40,3 +41,7 @@ class ServerInfo:
             return cls(IPv4Address(ip), int(port))
         except Exception as e:
             raise InvalidServerInfo(str(e))
+
+
+    def to_raw(self) -> Tuple[str, int]:
+        return str(self.ip), self.port
