@@ -15,11 +15,23 @@ filegroup(
 )
 
 filegroup(
+    name = "protocol_srcs",
+    srcs = [
+        "protocol.py",
+    ],
+    visibility = ["//Maman14/Client/tests:__pkg__"],
+)
+
+filegroup(
     name = "client_srcs",
     srcs = [
         "client.py",
-        "server_info.py",
+        "connection_manager.py",
+        ":backup_info_srcs",
+        ":protocol_srcs",
+        ":server_info_srcs",
     ],
+    visibility = ["//Maman14/Client/tests:__pkg__"],
 )
 
 py_library(

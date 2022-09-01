@@ -15,3 +15,19 @@ backup_client_test(
         "//Maman14/Client/backup_client:backup_info_srcs",
     ],
 )
+
+backup_client_test(
+    name = "client_test",
+    srcs = [
+        "client_test.py",
+        "//Maman14/Client/backup_client:client_srcs",
+    ],
+)
+
+backup_client_test(
+    name = "protocol_test",
+    srcs = [
+        "protocol_test.py",
+        "//Maman14/Client/backup_client:protocol_srcs",
+    ],
+)
