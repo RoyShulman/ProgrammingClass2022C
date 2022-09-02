@@ -23,7 +23,7 @@ class ProtocolTest(unittest.TestCase):
         expected = ListFilesResponse(version, filename, payload.encode())
         actual = struct.pack(f"<BHH{len(filename)}sI{len(payload)}s", version, ResponseOP.SUCCESSFUL_LIST_FILES.value,
                              len(filename), filename.encode(), len(payload), payload.encode())
-        self.assertNotEqual(expected, ResponseParser.parse_message(actual))
+        self.assertEqual(expected, ResponseParser.parse_message(actual))
 
 
 if __name__ == "__main__":
