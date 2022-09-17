@@ -37,3 +37,14 @@ http_archive(
 load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
 
 boost_deps()
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "new_git_repository")
+
+new_git_repository(
+    name = "cryptopp",
+    build_file = "//:cryptopp.BUILD",
+    # tag = CRYPTOPP_8_7_0
+    commit = "511806c0eba8ba5b5cedd4b4a814e96df92864a6",
+    remote = "git@github.com:weidai11/cryptopp.git",
+    shallow_since = "1659901978 -0400",
+)
