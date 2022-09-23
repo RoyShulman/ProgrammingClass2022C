@@ -15,6 +15,7 @@ cc_library(
     srcs = ["file.cpp"],
     hdrs = ["file.h"],
     visibility = [
+        "//Maman15/Client:__pkg__",
         "//Maman15/Client/test:__pkg__",
     ],
     deps = [
@@ -27,6 +28,7 @@ cc_library(
     srcs = ["string_utils.cpp"],
     hdrs = ["string_utils.h"],
     visibility = [
+        "//Maman15/Client:__pkg__",
         "//Maman15/Client/test:__pkg__",
     ],
     deps = [

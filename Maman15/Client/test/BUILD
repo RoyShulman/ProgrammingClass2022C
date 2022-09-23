@@ -25,3 +25,17 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "transfer_info_test",
+    srcs = ["transfer_info_test.cc"],
+    data = [
+        "resources/too_short_transfer.info",
+        "resources/transfer.info",
+    ],
+    deps = [
+        "//Maman15/Client:transfer_info",
+        "//Maman15/Client/util:string_utils",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
