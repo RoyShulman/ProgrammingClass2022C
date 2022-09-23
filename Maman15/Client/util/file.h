@@ -32,7 +32,7 @@ protected:
 
 class FileNotFoundException : public FilePathException {
 public:
-    FileNotFoundException(bfs::path full_path);
+    explicit FileNotFoundException(bfs::path full_path);
 };
 
 /**

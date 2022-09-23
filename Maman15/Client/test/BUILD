@@ -16,3 +16,12 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "string_utils_test",
+    srcs = ["string_utils_test.cc"],
+    deps = [
+        "//Maman15/Client/util:string_utils",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

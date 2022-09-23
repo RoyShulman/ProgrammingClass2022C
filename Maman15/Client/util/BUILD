@@ -21,3 +21,15 @@ cc_library(
         "@boost//:filesystem",
     ],
 )
+
+cc_library(
+    name = "string_utils",
+    srcs = ["string_utils.cpp"],
+    hdrs = ["string_utils.h"],
+    visibility = [
+        "//Maman15/Client/test:__pkg__",
+    ],
+    deps = [
+        "@boost//:asio",
+    ],
+)
