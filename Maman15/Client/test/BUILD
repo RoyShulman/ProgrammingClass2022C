@@ -6,3 +6,13 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "file_test",
+    srcs = ["file_test.cc"],
+    data = ["resources/file_with_lines.txt"],
+    deps = [
+        "//Maman15/Client/util:file",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

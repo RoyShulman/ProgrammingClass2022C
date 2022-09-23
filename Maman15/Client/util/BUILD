@@ -5,4 +5,19 @@ cc_library(
     visibility = [
         "//Maman15/Client/test:__pkg__",
     ],
+    deps = [
+        ":file",
+    ],
+)
+
+cc_library(
+    name = "file",
+    srcs = ["file.cpp"],
+    hdrs = ["file.h"],
+    visibility = [
+        "//Maman15/Client/test:__pkg__",
+    ],
+    deps = [
+        "@boost//:filesystem",
+    ],
 )
