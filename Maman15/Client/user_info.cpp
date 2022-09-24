@@ -19,7 +19,7 @@ UserInfo::UserInfo(string name, buuid::uuid uuid, encryption::PrivateKeyWrapper 
 UserInfo UserInfo::from_file(const bfs::path& info_file) {
     util::File from_file{info_file};
     vector<string> lines{from_file.read_lines()};
-    if (lines.size() != NUM_LINES_IN_INFO_FILE) {
+    if (lines.size() != NUM_LINES_IN_INFO_FILE_) {
         throw InvalidUserInfoFile(info_file, "Wrong number of lines in file");
     }
 

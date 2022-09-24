@@ -16,7 +16,7 @@ TransferInfo::TransferInfo(bip::tcp::endpoint server, string client_name, bfs::p
 TransferInfo TransferInfo::from_file(const bfs::path& info_file) {
     util::File from_file{info_file};
     vector<string> lines{from_file.read_lines()};
-    if (lines.size() != NUM_LINES_IN_INFO_FILE) {
+    if (lines.size() != NUM_LINES_IN_INFO_FILE_) {
         throw InvalidTransferInfoFile(info_file, "Wrong number of lines");
     }
 

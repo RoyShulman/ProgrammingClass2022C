@@ -30,7 +30,7 @@ public:
     friend std::ostream& operator<<(std::ostream& stream, const UserInfo& info);
 
 private:
-    static const size_t NUM_LINES_IN_INFO_FILE = 3;
+    static const size_t NUM_LINES_IN_INFO_FILE_ = 3;
 
     string name_;
     buuid::uuid uuid_;

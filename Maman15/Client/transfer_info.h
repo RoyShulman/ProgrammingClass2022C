@@ -28,7 +28,7 @@ public:
     friend std::ostream& operator<<(std::ostream& stream, const TransferInfo& info);
 
 private:
-    static const size_t NUM_LINES_IN_INFO_FILE = 3;
+    static const size_t NUM_LINES_IN_INFO_FILE_ = 3;
 
     bip::tcp::endpoint server_;
     string client_name_;
