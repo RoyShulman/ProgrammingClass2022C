@@ -1,5 +1,7 @@
 #include "little_endian_string_stream.h"
 
+#include <sstream>
+
 namespace client {
 namespace util {
 
@@ -29,6 +31,15 @@ LittleEndianStringStream& LittleEndianStringStream::operator<<(uint32_t value) {
 
 LittleEndianStringStream& LittleEndianStringStream::operator<<(const string& value) {
     container_.append(value);
+    return *this;
+}
+
+LittleEndianStringStream& LittleEndianStringStream::operator<<(const buuid::uuid& value) {
+    std::stringstream stream;
+    for (size_t i = 0; i < sizeof(value.data); i++) {
+        stream << value.data[i];
+    }
+    container_.append(stream.str());
     return *this;
 }
 

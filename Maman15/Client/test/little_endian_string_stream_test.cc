@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include <boost/uuid/string_generator.hpp>
 #include <string>
 
 using std::string;
@@ -39,5 +40,14 @@ TEST(LittleEndianStringStream, string_test) {
     string value{"\xfd;\x12\x0f"};
     l << value;
     string expected{"abc\xfd;\x12\x0f"};
+    ASSERT_EQ(s, expected);
+}
+
+TEST(LittleEndianStringStream, uuid_test) {
+    string s;
+    boost::uuids::string_generator gen;
+    client::util::LittleEndianStringStream l(s);
+    l << gen("bb4f4460-3c25-11ed-b2bb-f2d20dd24480");
+    string expected{"\xbbOD`<%\x11\xed\xb2\xbb\xf2\xd2\r\xd2\x44\x80"};
     ASSERT_EQ(s, expected);
 }

@@ -7,6 +7,7 @@ cc_library(
     ],
     deps = [
         ":file",
+        "@boost//:uuid",
     ],
 )
 
