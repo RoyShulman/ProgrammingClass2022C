@@ -39,3 +39,12 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "private_key_wrapper_test",
+    srcs = ["private_key_wrapper_test.cc"],
+    deps = [
+        "//Maman15/Client/encryption:private_key_wrapper",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

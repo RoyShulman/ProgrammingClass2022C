@@ -2,8 +2,10 @@ cc_library(
     name = "cryptopp",
     srcs = glob(
         ["*.cpp"],
+        exclude = ["test.cpp"],
     ),
     hdrs = glob(["*.h"]),
+    include_prefix = "cryptopp/",
     textual_hdrs = [
         "ec2n.cpp",
         "algebra.cpp",
