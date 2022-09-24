@@ -32,3 +32,19 @@ TEST(user_info_test, valid_file) {
                               client::encryption::PrivateKeyWrapper(private_key)};
     ASSERT_EQ(info, expected);
 }
+
+class InvalidUserFileTest : public testing::TestWithParam<const char*> {};
+
+TEST_P(InvalidUserFileTest, invalid_file) {
+    bfs::path path{"Maman15/Client/test/resources"};
+    path /= GetParam();
+    ASSERT_THROW(
+        {
+            client::UserInfo info{client::UserInfo::from_file(path)};
+        },
+        client::InvalidUserInfoFile);
+}
+
+INSTANTIATE_TEST_SUITE_P(InvalidInfoFilePaths,
+                         InvalidUserFileTest,
+                         testing::Values("too_short_me.info", "too_long_me.info", "invalid_key_me.info"));
