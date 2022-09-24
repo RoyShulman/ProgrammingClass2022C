@@ -7,8 +7,8 @@
 namespace client {
 namespace encryption {
 
-FailedToLoadPrivateKeyFromBase64::FailedToLoadPrivateKeyFromBase64(const string& base64_key)
-    : invalid_argument("Failed to load private key: " + base64_key) {}
+FailedToLoadPrivateKeyFromBase64::FailedToLoadPrivateKeyFromBase64(const string& base64_key, const string& error)
+    : invalid_argument("Failed to load private key: " + base64_key + "\nError: " + error) {}
 
 FailedToGenerateKeyWithSize::FailedToGenerateKeyWithSize(size_t bits)
     : invalid_argument("Failed to generate private key with size: " + std::to_string(bits)) {}
@@ -33,18 +33,18 @@ PrivateKeyWrapper::PrivateKeyWrapper(const string& base64_key) {
         queue.MessageEnd();
         key_.BERDecodePrivateKey(queue, false, queue.MaxRetrievable());
     } catch (const std::exception& e) {
-        throw FailedToLoadPrivateKeyFromBase64{base64_key};
+        throw FailedToLoadPrivateKeyFromBase64{base64_key, e.what()};
     }
 
     if (!queue.IsEmpty()) {
-        throw FailedToLoadPrivateKeyFromBase64(base64_key);
+        throw FailedToLoadPrivateKeyFromBase64(base64_key, "Queue should be empty");
     }
 }
 
 string PrivateKeyWrapper::base64() const {
     string base64_string;
     // According to the docs, Base64Encoder now owns StringSink and will free it when it is deleted
-    CryptoPP::Base64Encoder base64_encoder(new CryptoPP::StringSink(base64_string));
+    CryptoPP::Base64Encoder base64_encoder(new CryptoPP::StringSink(base64_string), false);
     key_.DEREncodePrivateKey(base64_encoder);
     base64_encoder.MessageEnd();
 

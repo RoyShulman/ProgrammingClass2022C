@@ -48,3 +48,15 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "user_info_test",
+    srcs = ["user_info_test.cc"],
+    data = ["resources/me.info"],
+    deps = [
+        "//Maman15/Client:user_info",
+        "//Maman15/Client/encryption:private_key_wrapper",
+        "@boost//:uuid",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

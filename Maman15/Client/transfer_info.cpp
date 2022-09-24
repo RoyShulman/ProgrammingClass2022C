@@ -5,8 +5,8 @@
 
 namespace client {
 
-InvalidTransferInfoFile::InvalidTransferInfoFile(const bfs::path& info_file)
-    : invalid_argument{"Given file: " + info_file.string() + " is not a valid transfer info file"} {}
+InvalidTransferInfoFile::InvalidTransferInfoFile(const bfs::path& info_file, const string& error)
+    : invalid_argument{"Invalid Transfer File: " + info_file.string() + "\nError: " + error} {}
 
 TransferInfo::TransferInfo(bip::tcp::endpoint server, string client_name, bfs::path transfer_file)
     : server_(std::move(server)),
@@ -17,7 +17,7 @@ TransferInfo TransferInfo::from_file(const bfs::path& info_file) {
     util::File from_file{info_file};
     vector<string> lines{from_file.read_lines()};
     if (lines.size() != NUM_LINES_IN_INFO_FILE) {
-        throw InvalidTransferInfoFile(info_file);
+        throw InvalidTransferInfoFile(info_file, "Wrong number of lines");
     }
 
     try {
@@ -25,7 +25,7 @@ TransferInfo TransferInfo::from_file(const bfs::path& info_file) {
                             lines[1],
                             bfs::path(lines[2])};
     } catch (const std::exception& e) {
-        throw InvalidTransferInfoFile(info_file);
+        throw InvalidTransferInfoFile(info_file, e.what());
     }
 }
 

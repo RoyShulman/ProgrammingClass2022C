@@ -14,7 +14,7 @@ namespace client {
 
 class InvalidTransferInfoFile : public invalid_argument {
 public:
-    explicit InvalidTransferInfoFile(const bfs::path& info_file);
+    InvalidTransferInfoFile(const bfs::path& info_file, const string& error);
 };
 
 class TransferInfo {

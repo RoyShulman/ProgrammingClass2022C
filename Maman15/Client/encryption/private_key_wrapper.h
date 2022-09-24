@@ -13,7 +13,7 @@ namespace encryption {
 
 class FailedToLoadPrivateKeyFromBase64 : public invalid_argument {
 public:
-    explicit FailedToLoadPrivateKeyFromBase64(const string& base64_key);
+    explicit FailedToLoadPrivateKeyFromBase64(const string& base64_key, const string& error);
 };
 
 class FailedToGenerateKeyWithSize : public invalid_argument {
