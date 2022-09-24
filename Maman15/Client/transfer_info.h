@@ -21,7 +21,7 @@ class TransferInfo {
 public:
     // This constructor is used to make unit testing easier
     TransferInfo(bip::tcp::endpoint server, string client_name, bfs::path transfer_file);
-    explicit TransferInfo(const bfs::path& info_file);
+    static TransferInfo from_file(const bfs::path& info_file);
 
     bool operator==(const TransferInfo& rhs) const;
     bool operator!=(const TransferInfo& rhs) const;

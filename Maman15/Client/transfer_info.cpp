@@ -13,7 +13,7 @@ TransferInfo::TransferInfo(bip::tcp::endpoint server, string client_name, bfs::p
       client_name_(std::move(client_name)),
       transfer_file_(std::move(transfer_file)) {}
 
-TransferInfo::TransferInfo(const bfs::path& info_file) {
+TransferInfo TransferInfo::from_file(const bfs::path& info_file) {
     util::File from_file{info_file};
     vector<string> lines{from_file.read_lines()};
     if (lines.size() != NUM_LINES_IN_INFO_FILE) {
@@ -21,9 +21,9 @@ TransferInfo::TransferInfo(const bfs::path& info_file) {
     }
 
     try {
-        server_ = util::string_to_endpoint(lines[0]);
-        client_name_ = lines[1];
-        transfer_file_ = bfs::path(lines[2]);
+        return TransferInfo{util::string_to_endpoint(lines[0]),
+                            lines[1],
+                            bfs::path(lines[2])};
     } catch (const std::exception& e) {
         throw InvalidTransferInfoFile(info_file);
     }
