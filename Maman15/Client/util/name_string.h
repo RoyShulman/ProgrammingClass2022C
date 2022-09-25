@@ -29,7 +29,8 @@ private:
     name_array name_;
 
 public:
-    explicit NameString(const string& s);
+    // We don't want the constructor to be explicit because we want an implicit conversion from string
+    NameString(const string& s);
 
     const name_array& get_name() const { return name_; };
 };

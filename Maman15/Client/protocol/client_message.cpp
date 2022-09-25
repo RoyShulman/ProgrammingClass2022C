@@ -18,12 +18,8 @@ string ClientMessage::pack_header() const {
     return header;
 }
 
-InvalidMessageArgument::InvalidMessageArgument(const string& error)
-    : invalid_argument("InvalidMessageArgument: " + error) {}
-
-RegistrationRequestMessage::RegistrationRequestMessage(ClientVersion version, ClientMessageID code,
-                                                       buuid::uuid uuid, util::NameString name)
-    : ClientMessage(version, code, name.get_name().size(), uuid), name_(std::move(name)) {}
+RegistrationRequestMessage::RegistrationRequestMessage(ClientVersion version, buuid::uuid uuid, util::NameString name)
+    : ClientMessage(version, ClientMessageID::REGISTRATION, name.get_name().size(), uuid), name_(std::move(name)) {}
 
 string RegistrationRequestMessage::pack() const {
     string message;

@@ -1,13 +1,11 @@
 #pragma once
 #include <boost/uuid/uuid.hpp>
 #include <cstdint>
-#include <stdexcept>
 #include <string>
 
 #include "../util/name_string.h"
 
 namespace buuid = boost::uuids;
-using std::invalid_argument;
 using std::string;
 
 namespace client {
@@ -40,14 +38,9 @@ private:
     buuid::uuid uuid_;
 };
 
-class InvalidMessageArgument : public invalid_argument {
-public:
-    explicit InvalidMessageArgument(const string& error);
-};
-
 class RegistrationRequestMessage : public ClientMessage {
 public:
-    RegistrationRequestMessage(ClientVersion version, ClientMessageID code, buuid::uuid uuid, util::NameString name);
+    RegistrationRequestMessage(ClientVersion version, buuid::uuid uuid, util::NameString name);
 
     virtual string pack() const override;
 
