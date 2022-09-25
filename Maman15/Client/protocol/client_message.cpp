@@ -64,5 +64,28 @@ uint32_t UploadFileMessage::get_payload_size() const {
     return file_name_.get_name().size() + sizeof(uint32_t) + encrypted_file_content_.size();
 }
 
+EmptyPayloadClientMessage::EmptyPayloadClientMessage(ClientVersion version, ClientMessageID code, buuid::uuid uuid)
+    : ClientMessage(version, code, std::move(uuid)) {}
+
+string EmptyPayloadClientMessage::pack() const {
+    string message;
+    util::LittleEndianStringStream packing_stream{message};
+    packing_stream << pack_header();
+    return message;
+}
+
+uint32_t EmptyPayloadClientMessage::get_payload_size() const {
+    return 0;
+}
+
+FileCRCOkMessage::FileCRCOkMessage(ClientVersion version, buuid::uuid uuid)
+    : EmptyPayloadClientMessage(version, ClientMessageID::FILE_CRC_OK, std::move(uuid)) {}
+
+CRCIncorrectWillRetry::CRCIncorrectWillRetry(ClientVersion version, buuid::uuid uuid)
+    : EmptyPayloadClientMessage(version, ClientMessageID::CRC_INCORRECT_WILL_RETRY, std::move(uuid)) {}
+
+CRCIncorrectGivingUp::CRCIncorrectGivingUp(ClientVersion version, buuid::uuid uuid)
+    : EmptyPayloadClientMessage(version, ClientMessageID::CRC_INCORRECT_GIVING_UP, std::move(uuid)) {}
+
 }  // namespace protocol
 }  // namespace client

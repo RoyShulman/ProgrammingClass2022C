@@ -42,6 +42,19 @@ private:
     buuid::uuid uuid_;
 };
 
+/**
+ * @brief Base class for client messages with no payload.
+ */
+class EmptyPayloadClientMessage : public ClientMessage {
+protected:
+    // This class shouldn't be initialized so the constructor is protected
+    EmptyPayloadClientMessage(ClientVersion version, ClientMessageID code, buuid::uuid uuid);
+
+public:
+    virtual string pack() const override;
+    virtual uint32_t get_payload_size() const override;
+};
+
 class RegistrationRequestMessage : public ClientMessage {
 public:
     RegistrationRequestMessage(ClientVersion version, buuid::uuid uuid, util::NameString name);
@@ -75,6 +88,21 @@ public:
 private:
     util::NameString file_name_;
     string encrypted_file_content_;
+};
+
+class FileCRCOkMessage : public EmptyPayloadClientMessage {
+public:
+    FileCRCOkMessage(ClientVersion version, buuid::uuid uuid);
+};
+
+class CRCIncorrectWillRetry : public EmptyPayloadClientMessage {
+public:
+    CRCIncorrectWillRetry(ClientVersion version, buuid::uuid uuid);
+};
+
+class CRCIncorrectGivingUp : public EmptyPayloadClientMessage {
+public:
+    CRCIncorrectGivingUp(ClientVersion version, buuid::uuid uuid);
 };
 
 }  // namespace protocol

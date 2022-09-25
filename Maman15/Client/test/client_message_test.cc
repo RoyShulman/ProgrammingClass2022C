@@ -118,3 +118,30 @@ TEST_F(ClientMessageTest, upload_file) {
     ASSERT_EQ(expected, real);
     ASSERT_EQ(message.get_payload_size(), 255 + 4 + 46);
 }
+
+TEST_F(ClientMessageTest, file_crc_ok) {
+    client::protocol::FileCRCOkMessage message{version, uuid};
+    string real{message.pack()};
+    string expected{'\xbb', 'O', 'D', '`', '<', '%', '\x11', '\xed', '\xb2', '\xbb', '\xf2', '\xd2', '\r', '\xd2', 'D', '\x80', '\x03', 'P',
+                    '\x04', '\x00', '\x00', '\x00', '\x00'};
+    ASSERT_EQ(expected, real);
+    ASSERT_EQ(message.get_payload_size(), 0);
+}
+
+TEST_F(ClientMessageTest, crc_incorrect_will_retry) {
+    client::protocol::CRCIncorrectWillRetry message{version, uuid};
+    string real{message.pack()};
+    string expected{'\xbb', 'O', 'D', '`', '<', '%', '\x11', '\xed', '\xb2', '\xbb', '\xf2', '\xd2', '\r', '\xd2', 'D', '\x80', '\x03', 'Q',
+                    '\x04', '\x00', '\x00', '\x00', '\x00'};
+    ASSERT_EQ(expected, real);
+    ASSERT_EQ(message.get_payload_size(), 0);
+}
+
+TEST_F(ClientMessageTest, crc_incorrect_giving_up) {
+    client::protocol::CRCIncorrectGivingUp message{version, uuid};
+    string real{message.pack()};
+    string expected{'\xbb', 'O', 'D', '`', '<', '%', '\x11', '\xed', '\xb2', '\xbb', '\xf2', '\xd2', '\r', '\xd2', 'D', '\x80', '\x03', 'R',
+                    '\x04', '\x00', '\x00', '\x00', '\x00'};
+    ASSERT_EQ(expected, real);
+    ASSERT_EQ(message.get_payload_size(), 0);
+}
