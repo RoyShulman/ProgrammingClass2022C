@@ -40,8 +40,11 @@ public:
     bool operator!=(const PrivateKeyWrapper& rhs) const;
     friend std::ostream& operator<<(std::ostream& stream, const PrivateKeyWrapper& info);
 
+    string get_public() const;
+
 private:
-    CryptoPP::RSA::PrivateKey key_;
+    CryptoPP::RSA::PrivateKey private_key_;
+    CryptoPP::RSA::PublicKey public_key_;
 };
 
 }  // namespace encryption

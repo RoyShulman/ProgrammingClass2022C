@@ -16,7 +16,8 @@ FailedToGenerateKeyWithSize::FailedToGenerateKeyWithSize(size_t bits)
 PrivateKeyWrapper::PrivateKeyWrapper(size_t bits) {
     CryptoPP::AutoSeededRandomPool rng;
     try {
-        key_.GenerateRandomWithKeySize(rng, bits);
+        private_key_.GenerateRandomWithKeySize(rng, bits);
+        public_key_ = CryptoPP::RSA::PublicKey(private_key_);
     } catch (const std::exception& e) {
         throw FailedToGenerateKeyWithSize{bits};
     }
@@ -31,7 +32,8 @@ PrivateKeyWrapper::PrivateKeyWrapper(const string& base64_key) {
                                       new CryptoPP::Base64Decoder(
                                           new CryptoPP::Redirector(queue)));
         queue.MessageEnd();
-        key_.BERDecodePrivateKey(queue, false, queue.MaxRetrievable());
+        private_key_.BERDecodePrivateKey(queue, false, queue.MaxRetrievable());
+        public_key_ = CryptoPP::RSA::PublicKey(private_key_);
     } catch (const std::exception& e) {
         throw FailedToLoadPrivateKeyFromBase64{base64_key, e.what()};
     }
@@ -45,7 +47,7 @@ string PrivateKeyWrapper::base64() const {
     string base64_string;
     // According to the docs, Base64Encoder now owns StringSink and will free it when it is deleted
     CryptoPP::Base64Encoder base64_encoder(new CryptoPP::StringSink(base64_string), false);
-    key_.DEREncodePrivateKey(base64_encoder);
+    private_key_.DEREncodePrivateKey(base64_encoder);
     base64_encoder.MessageEnd();
 
     return base64_string;
@@ -59,6 +61,14 @@ bool PrivateKeyWrapper::operator!=(const PrivateKeyWrapper& rhs) const {
 }
 std::ostream& operator<<(std::ostream& stream, const PrivateKeyWrapper& key) {
     return stream << key.base64();
+}
+
+string PrivateKeyWrapper::get_public() const {
+    string public_key;
+    CryptoPP::StringSink string_sink{public_key};
+    public_key_.Save(string_sink);
+    string_sink.MessageEnd();
+    return public_key;
 }
 
 }  // namespace encryption
