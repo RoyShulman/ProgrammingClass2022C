@@ -22,6 +22,9 @@ enum class ClientMessageID : uint16_t {
     CRC_INCORRECT_GIVING_UP = 1106,
 };
 
+/**
+ * @brief Abstract base class for all user messages.
+ */
 class ClientMessage {
 protected:
     ClientMessage(ClientVersion version, ClientMessageID code, uint32_t payload_size, buuid::uuid uuid);
@@ -46,6 +49,17 @@ public:
 
 private:
     util::NameString name_;
+};
+
+class ClientPublicKeyMessage : public ClientMessage {
+public:
+    ClientPublicKeyMessage(ClientVersion version, buuid::uuid uuid, util::NameString name, string public_key);
+
+    virtual string pack() const override;
+
+private:
+    util::NameString name_;
+    string public_key_;
 };
 
 }  // namespace protocol
