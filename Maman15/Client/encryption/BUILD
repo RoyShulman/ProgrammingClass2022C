@@ -10,3 +10,16 @@ cc_library(
         "@cryptopp",
     ],
 )
+
+cc_library(
+    name = "aes_wrapper",
+    srcs = ["aes_wrapper.cpp"],
+    hdrs = ["aes_wrapper.h"],
+    visibility = [
+        "//Maman15/Client:__pkg__",
+        "//Maman15/Client/test:__pkg__",
+    ],
+    deps = [
+        "@cryptopp",
+    ],
+)

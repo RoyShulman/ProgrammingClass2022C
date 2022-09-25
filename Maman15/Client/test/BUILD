@@ -79,3 +79,12 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "aes_wrapper_test",
+    srcs = ["aes_wrapper_test.cc"],
+    deps = [
+        "@//Maman15/Client/encryption:aes_wrapper",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
