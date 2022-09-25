@@ -27,17 +27,18 @@ enum class ClientMessageID : uint16_t {
  */
 class ClientMessage {
 protected:
-    ClientMessage(ClientVersion version, ClientMessageID code, uint32_t payload_size, buuid::uuid uuid);
+    ClientMessage(ClientVersion version, ClientMessageID code, buuid::uuid uuid);
     virtual ~ClientMessage() = default;
 
     string pack_header() const;
 
     virtual string pack() const = 0;
 
+    virtual uint32_t get_payload_size() const = 0;
+
 private:
     ClientVersion version_;
     ClientMessageID code_;
-    uint32_t payload_size_;
     buuid::uuid uuid_;
 };
 
@@ -46,6 +47,7 @@ public:
     RegistrationRequestMessage(ClientVersion version, buuid::uuid uuid, util::NameString name);
 
     virtual string pack() const override;
+    virtual uint32_t get_payload_size() const override;
 
 private:
     util::NameString name_;
@@ -56,10 +58,23 @@ public:
     ClientPublicKeyMessage(ClientVersion version, buuid::uuid uuid, util::NameString name, string public_key);
 
     virtual string pack() const override;
+    virtual uint32_t get_payload_size() const override;
 
 private:
     util::NameString name_;
     string public_key_;
+};
+
+class UploadFileMessage : public ClientMessage {
+public:
+    UploadFileMessage(ClientVersion version, buuid::uuid uuid, util::NameString file_name, string encrypted_file_content);
+
+    virtual string pack() const override;
+    virtual uint32_t get_payload_size() const override;
+
+private:
+    util::NameString file_name_;
+    string encrypted_file_content_;
 };
 
 }  // namespace protocol
