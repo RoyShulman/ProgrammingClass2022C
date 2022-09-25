@@ -4,6 +4,7 @@ cc_library(
     hdrs = ["little_endian_string_stream.h"],
     visibility = [
         "//Maman15/Client/test:__pkg__",
+        "//Maman15/Client/protocol:__pkg__",
     ],
     deps = [
         ":file",
@@ -34,5 +35,15 @@ cc_library(
     ],
     deps = [
         "@boost//:asio",
+    ],
+)
+
+cc_library(
+    name = "name_string",
+    srcs = ["name_string.cpp"],
+    hdrs = ["name_string.h"],
+    visibility = [
+        "//Maman15/Client:__pkg__",
+        "//Maman15/Client/test:__pkg__",
     ],
 )

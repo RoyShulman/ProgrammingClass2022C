@@ -3,6 +3,7 @@ cc_test(
     srcs = ["little_endian_string_stream_test.cc"],
     deps = [
         "//Maman15/Client/util:little_endian_string_stream",
+        "@boost//:uuid",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -57,6 +58,24 @@ cc_test(
         "//Maman15/Client:user_info",
         "//Maman15/Client/encryption:private_key_wrapper",
         "@boost//:uuid",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "client_message_test",
+    srcs = ["client_message_test.cc"],
+    deps = [
+        "@//Maman15/Client/protocol:client_message",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "name_string_test",
+    srcs = ["name_string_test.cc"],
+    deps = [
+        "@//Maman15/Client/util:name_string",
         "@com_google_googletest//:gtest_main",
     ],
 )
