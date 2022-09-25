@@ -22,12 +22,8 @@ InvalidMessageArgument::InvalidMessageArgument(const string& error)
     : invalid_argument("InvalidMessageArgument: " + error) {}
 
 RegistrationRequestMessage::RegistrationRequestMessage(ClientVersion version, ClientMessageID code,
-                                                       buuid::uuid uuid, string name)
-    : ClientMessage(version, code, MAX_NAME_SIZE, uuid), name_(std::move(name)) {
-    if (name_.size() > MAX_NAME_SIZE) {
-        throw InvalidMessageArgument("length of: " + name_ + " must be smaller than: " + std::to_string(MAX_NAME_SIZE));
-    }
-}
+                                                       buuid::uuid uuid, util::NameString name)
+    : ClientMessage(version, code, name.get_name().size(), uuid), name_(std::move(name)) {}
 
 string RegistrationRequestMessage::pack() const {
     string message;

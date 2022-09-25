@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <boost/uuid/uuid.hpp>
+#include "name_string.h"
 
 namespace buuid = boost::uuids;
 
@@ -25,6 +26,7 @@ public:
     LittleEndianStringStream& operator<<(uint32_t value);
     LittleEndianStringStream& operator<<(const string& value);
     LittleEndianStringStream& operator<<(const buuid::uuid& value);
+    LittleEndianStringStream& operator<<(const NameString& value);
 
 private:
     string& container_;

@@ -51,3 +51,16 @@ TEST(LittleEndianStringStream, uuid_test) {
     string expected{"\xbbOD`<%\x11\xed\xb2\xbb\xf2\xd2\r\xd2\x44\x80"};
     ASSERT_EQ(s, expected);
 }
+
+TEST(LittleEndianStringStream, name_string_test) {
+    string s;
+    client::util::LittleEndianStringStream l(s);
+
+    string expected(255, '\0');
+    expected[0] = 'a';
+    expected[1] = '2';
+
+    client::util::NameString name{"a2"};
+    l << name;
+    ASSERT_EQ(s, expected);
+}

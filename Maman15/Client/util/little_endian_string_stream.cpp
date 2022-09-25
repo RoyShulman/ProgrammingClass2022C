@@ -43,5 +43,13 @@ LittleEndianStringStream& LittleEndianStringStream::operator<<(const buuid::uuid
     return *this;
 }
 
+LittleEndianStringStream& LittleEndianStringStream::operator<<(const NameString& value) {
+    const auto& name = value.get_name();
+    for (size_t i = 0; i < name.size(); i++) {
+        container_.push_back(name[i]);
+    }
+    return *this;
+}
+
 }  // namespace util
 }  // namespace client

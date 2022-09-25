@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "../util/name_string.h"
+
 namespace buuid = boost::uuids;
 using std::invalid_argument;
 using std::string;
@@ -45,13 +47,12 @@ public:
 
 class RegistrationRequestMessage : public ClientMessage {
 public:
-    RegistrationRequestMessage(ClientVersion version, ClientMessageID code, buuid::uuid uuid, string name);
+    RegistrationRequestMessage(ClientVersion version, ClientMessageID code, buuid::uuid uuid, util::NameString name);
 
     virtual string pack() const override;
 
 private:
-    static const size_t MAX_NAME_SIZE = 255;
-    string name_;
+    util::NameString name_;
 };
 
 }  // namespace protocol
