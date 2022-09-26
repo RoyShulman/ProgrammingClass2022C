@@ -102,6 +102,7 @@ def _impl(ctx):
                                 "-Wextra",
                                 "-Wpedantic",
                                 "-Wno-error=missing-field-initializers",
+                                "-Wno-error=deprecated-copy-with-user-provided-copy",
                             ],
                         ),
                     ]),
