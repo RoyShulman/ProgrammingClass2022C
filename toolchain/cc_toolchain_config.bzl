@@ -123,6 +123,22 @@ def _impl(ctx):
                 ),
             ],
         ),
+        feature(
+            name = "needed_cpu_flags",
+            enabled = True,
+            flag_sets = [
+                flag_set(
+                    actions = [ACTION_NAMES.cpp_compile],
+                    flag_groups = ([
+                        flag_group(
+                            flags = [
+                                "-ssse3",
+                            ],
+                        ),
+                    ]),
+                ),
+            ],
+        ),
     ]
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
