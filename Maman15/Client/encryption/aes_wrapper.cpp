@@ -15,6 +15,7 @@ AESWrapper::AESWrapper(const string& key) {
 
     memcpy(key_.data(), key.data(), key_.size());
 }
+
 string AESWrapper::encrypt(const string& plain) {
     // Based on https://www.cryptopp.com/wiki/CBC_Mode
     string cipher;
