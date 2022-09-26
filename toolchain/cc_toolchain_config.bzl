@@ -127,6 +127,7 @@ def _impl(ctx):
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
         cxx_builtin_include_directories = [
+            "/usr/lib/llvm-11/lib/clang/11.0.0/include/",
             "/usr/include",
         ],
         features = features,
