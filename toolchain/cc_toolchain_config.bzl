@@ -133,6 +133,7 @@ def _impl(ctx):
                         flag_group(
                             flags = [
                                 "-mssse3",
+                                "-march=native",
                             ],
                         ),
                     ]),
