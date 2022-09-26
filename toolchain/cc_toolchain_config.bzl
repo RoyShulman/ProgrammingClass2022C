@@ -76,8 +76,8 @@ def _impl(ctx):
             name = "cc_standard",
             enabled = True,
             flag_sets = [
-                flags_set(
-                    actions = ACTION_NAMES.cpp_compile + all_link_actions,
+                flag_set(
+                    actions = [ACTION_NAMES.cpp_compile] + all_link_actions,
                     flag_groups = ([
                         flag_group(
                             flags = [
@@ -92,8 +92,8 @@ def _impl(ctx):
             name = "default_warnings",
             enabled = True,
             flag_sets = [
-                flags_set(
-                    actions = ACTION_NAMES.cpp_compile + all_link_actions,
+                flag_set(
+                    actions = [ACTION_NAMES.cpp_compile] + all_link_actions,
                     flag_groups = ([
                         flag_group(
                             flags = [
@@ -108,11 +108,11 @@ def _impl(ctx):
             ],
         ),
         feature(
-            name = "warnings as errors",
+            name = "warnings_as_errors",
             enabled = True,
             flag_sets = [
-                flags_set(
-                    actions = ACTION_NAMES.cpp_compile + all_link_actions,
+                flag_set(
+                    actions = [ACTION_NAMES.cpp_compile] + all_link_actions,
                     flag_groups = ([
                         flag_group(
                             flags = [
