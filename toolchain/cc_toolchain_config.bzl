@@ -126,6 +126,9 @@ def _impl(ctx):
     ]
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
+        cxx_builtin_include_directories = [
+            "/usr/include",
+        ],
         features = features,
         toolchain_identifier = "k8-toolchain",
         host_system_name = "local",
