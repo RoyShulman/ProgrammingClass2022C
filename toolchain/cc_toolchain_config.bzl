@@ -66,6 +66,7 @@ def _impl(ctx):
                         flag_group(
                             flags = [
                                 "-lstdc++",
+                                "-lm",
                             ],
                         ),
                     ]),
@@ -134,7 +135,7 @@ def _impl(ctx):
                             flags = [
                                 "-mssse3",
                                 "-march=native",
-                                "-msha"
+                                "-msha",
                             ],
                         ),
                     ]),
