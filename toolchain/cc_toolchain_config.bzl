@@ -134,6 +134,7 @@ def _impl(ctx):
                             flags = [
                                 "-mssse3",
                                 "-march=native",
+                                "-msha"
                             ],
                         ),
                     ]),
