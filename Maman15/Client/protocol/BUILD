@@ -22,6 +22,7 @@ cc_library(
         "//Maman15/Client/test:__pkg__",
     ],
     deps = [
+        "//Maman15/Client:incoming_message_reader",
         "//Maman15/Client/util:little_endian_string_stream",
         "//Maman15/Client/util:name_string",
         "@boost//:uuid",

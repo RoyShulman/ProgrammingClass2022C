@@ -8,8 +8,8 @@ StringLengthTooLarge::StringLengthTooLarge(const string& s, size_t max_size)
 
 NameString::NameString(const string& s)
     : name_{} {
-    if (s.size() > name_.size() - 1) {
-        throw StringLengthTooLarge{s, name_.size() - 1};
+    if (s.size() > name_.size()) {
+        throw StringLengthTooLarge{s, name_.size()};
     }
 
     // The array is initialized to '\0' so we just need to copy the string
@@ -17,5 +17,14 @@ NameString::NameString(const string& s)
         name_[i] = s[i];
     }
 }
+
+bool NameString::operator==(const NameString& rhs) const {
+    return memcmp(name_.data(), rhs.name_.data(), name_.size()) == 0;
+}
+
+bool NameString::operator!=(const NameString& rhs) const {
+    return !operator==(rhs);
+}
+
 }  // namespace util
 }  // namespace client

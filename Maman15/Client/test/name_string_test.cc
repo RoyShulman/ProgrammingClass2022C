@@ -22,4 +22,16 @@ TEST_P(InvalidLengthNameStringTest, bad_length) {
 }
 INSTANTIATE_TEST_SUITE_P(InvalidInfoFileLengths,
                          InvalidLengthNameStringTest,
-                         testing::Values(255, 300, 1000));
+                         testing::Values(256, 300, 1000));
+
+TEST(NameStringTest, test_eq) {
+    client::util::NameString name1{"hello"};
+    client::util::NameString name2{"hello"};
+    ASSERT_EQ(name1, name2);
+}
+
+TEST(NameStringTest, test_neq) {
+    client::util::NameString name1{"hello"};
+    client::util::NameString name2{"hello3"};
+    ASSERT_NE(name1, name2);
+}

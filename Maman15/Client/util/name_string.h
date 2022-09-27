@@ -24,8 +24,8 @@ public:
  */
 class NameString {
 private:
-    static constexpr size_t NAME_SIZE_ = 254;
-    typedef array<char, NAME_SIZE_ + 1> name_array;  // +1 for the null terminator
+    static constexpr size_t NAME_SIZE_ = 255;
+    typedef array<char, NAME_SIZE_> name_array;
     name_array name_;
 
 public:
@@ -33,6 +33,10 @@ public:
     NameString(const string& s);
 
     const name_array& get_name() const { return name_; };
+    static constexpr size_t get_name_size() { return NAME_SIZE_; };
+
+    bool operator==(const NameString& rhs) const;
+    bool operator!=(const NameString& rhs) const;
 };
 
 }  // namespace util

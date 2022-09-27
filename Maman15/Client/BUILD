@@ -27,3 +27,13 @@ cc_library(
         "@boost//:uuid",
     ],
 )
+
+cc_library(
+    name = "incoming_message_reader",
+    srcs = ["incoming_message_reader.cpp"],
+    hdrs = ["incoming_message_reader.h"],
+    visibility = [
+        "//Maman15/Client/test:__pkg__",
+        "//Maman15/Client/protocol:__pkg__",
+    ],
+)

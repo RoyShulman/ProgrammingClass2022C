@@ -97,3 +97,12 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "server_message_test",
+    srcs = ["server_message_test.cc"],
+    deps = [
+        "@//Maman15/Client/protocol:server_message",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
