@@ -10,6 +10,8 @@
 
 namespace client {
 
+const bfs::path UserInfo::DEFAULT_FILENAME_ = bfs::path("me.info");
+
 InvalidUserInfoFile::InvalidUserInfoFile(const bfs::path& info_file, const string& error)
     : invalid_argument("Invalid user info file: " + info_file.string() + "\nError: " + error) {}
 
@@ -31,6 +33,13 @@ UserInfo UserInfo::from_file(const bfs::path& info_file) {
     } catch (const std::exception& e) {
         throw InvalidUserInfoFile(info_file, e.what());
     }
+}
+
+void UserInfo::save_to_file(const bfs::path& info_file) const {
+    std::ofstream file(info_file.string());
+    file << name_ << std::endl;
+    file << uuid_ << std::endl;
+    file << key_ << std::endl;
 }
 
 bool UserInfo::operator==(const UserInfo& rhs) const {
