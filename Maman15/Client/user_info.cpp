@@ -15,6 +15,8 @@ const bfs::path UserInfo::DEFAULT_FILENAME_ = bfs::path("me.info");
 InvalidUserInfoFile::InvalidUserInfoFile(const bfs::path& info_file, const string& error)
     : invalid_argument("Invalid user info file: " + info_file.string() + "\nError: " + error) {}
 
+UserInfo::UserInfo() : name_{}, uuid_{}, key_{} {}
+
 UserInfo::UserInfo(string name, buuid::uuid uuid, encryption::PrivateKeyWrapper key)
     : name_(std::move(name)), uuid_(std::move(uuid)), key_(std::move(key)) {}
 

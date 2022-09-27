@@ -28,6 +28,8 @@ public:
      */
     explicit PrivateKeyWrapper(const string& base64_key);
 
+    PrivateKeyWrapper();
+
     /**
      * @brief Construct a new Private Key Wrapper object with an
      * CryptoPP::RSA::PrivateKey key with size of bits

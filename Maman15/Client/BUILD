@@ -33,7 +33,45 @@ cc_library(
     srcs = ["incoming_message_reader.cpp"],
     hdrs = ["incoming_message_reader.h"],
     visibility = [
-        "//Maman15/Client/test:__pkg__",
         "//Maman15/Client/protocol:__pkg__",
+        "//Maman15/Client/test:__pkg__",
+    ],
+)
+
+cc_library(
+    name = "connection_manager",
+    srcs = ["connection_manager.cpp"],
+    hdrs = ["connection_manager.h"],
+    visibility = [
+        "//Maman15/Client/test:__pkg__",
+    ],
+    deps = [
+        ":transfer_info",
+        "@boost//:asio",
+    ],
+)
+
+cc_library(
+    name = "client",
+    srcs = ["client.cpp"],
+    hdrs = ["client.h"],
+    visibility = [
+        "//Maman15/Client/test:__pkg__",
+    ],
+    deps = [
+        ":connection_manager",
+        ":incoming_message_reader",
+        ":user_info",
+        "//Maman15/Client/protocol",
+        "@boost//:log",
+    ],
+)
+
+cc_binary(
+    name = "client_main",
+    srcs = ["main.cpp"],
+    deps = [
+        ":client",
+        "@boost//:log",
     ],
 )

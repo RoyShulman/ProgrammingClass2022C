@@ -29,6 +29,7 @@ private:
     encryption::PrivateKeyWrapper key_;
 
 public:
+    UserInfo();
     UserInfo(string name, buuid::uuid uuid, encryption::PrivateKeyWrapper key);
 
     static UserInfo from_file(const bfs::path& info_file = DEFAULT_FILENAME_);
@@ -36,6 +37,10 @@ public:
     bool does_file_exist() const { return bfs::exists(DEFAULT_FILENAME_); };
 
     void save_to_file(const bfs::path& info_file = DEFAULT_FILENAME_) const;
+
+    void set_name(string name) { name_ = std::move(name); };
+    void set_uuid(buuid::uuid uuid) { uuid_ = std::move(uuid); };
+    void set_key(encryption::PrivateKeyWrapper key) { key_ = std::move(key); };
 
     bool operator==(const UserInfo& rhs) const;
     bool operator!=(const UserInfo& rhs) const;

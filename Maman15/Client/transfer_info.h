@@ -18,21 +18,25 @@ public:
 };
 
 class TransferInfo {
+private:
+    static const size_t NUM_LINES_IN_INFO_FILE_ = 3;
+    static const bfs::path DEFAULT_FILENAME_;
+
+    bip::tcp::endpoint server_;
+    string client_name_;
+    bfs::path transfer_file_;
+
 public:
     // This constructor is used to make unit testing easier
     TransferInfo(bip::tcp::endpoint server, string client_name, bfs::path transfer_file);
-    static TransferInfo from_file(const bfs::path& info_file);
+    static TransferInfo from_file(const bfs::path& info_file = DEFAULT_FILENAME_);
 
     bool operator==(const TransferInfo& rhs) const;
     bool operator!=(const TransferInfo& rhs) const;
     friend std::ostream& operator<<(std::ostream& stream, const TransferInfo& info);
 
-private:
-    static const size_t NUM_LINES_IN_INFO_FILE_ = 3;
-
-    bip::tcp::endpoint server_;
-    string client_name_;
-    bfs::path transfer_file_;
+    const string& get_client_name() const { return client_name_; };
+    const bip::tcp::endpoint& get_server() const { return server_; };
 };
 
 }  // namespace client

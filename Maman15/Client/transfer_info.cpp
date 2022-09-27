@@ -13,6 +13,8 @@ TransferInfo::TransferInfo(bip::tcp::endpoint server, string client_name, bfs::p
       client_name_(std::move(client_name)),
       transfer_file_(std::move(transfer_file)) {}
 
+const bfs::path TransferInfo::DEFAULT_FILENAME_ = bfs::path("transfer.info");
+
 TransferInfo TransferInfo::from_file(const bfs::path& info_file) {
     util::File from_file{info_file};
     vector<string> lines{from_file.read_lines()};

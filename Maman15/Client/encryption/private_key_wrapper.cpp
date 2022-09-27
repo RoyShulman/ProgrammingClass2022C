@@ -23,6 +23,8 @@ PrivateKeyWrapper::PrivateKeyWrapper(size_t bits) {
     }
 }
 
+PrivateKeyWrapper::PrivateKeyWrapper() : private_key_{}, public_key_{} {}
+
 PrivateKeyWrapper::PrivateKeyWrapper(const string& base64_key) {
     // Based on https://cryptopp.com/wiki/Keys_and_Formats and https://www.cryptopp.com/wiki/Pipelining
     CryptoPP::ByteQueue queue;
