@@ -49,3 +49,13 @@ cc_library(
         "//Maman15/Client/test:__pkg__",
     ],
 )
+
+cc_library(
+    name = "crc32",
+    srcs = ["crc32.cpp"],
+    hdrs = ["crc32.h"],
+    visibility = [
+        "//Maman15/Client:__pkg__",
+        "//Maman15/Client/test:__pkg__",
+    ],
+)

@@ -88,3 +88,12 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "crc32_test",
+    srcs = ["crc32_test.cc"],
+    deps = [
+        "@//Maman15/Client/util:crc32",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
