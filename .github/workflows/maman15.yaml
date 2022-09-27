@@ -22,4 +22,4 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Test client
-        run: bazel test //Maman15/Client/test:all --config=github_gcc -s
+        run: bazel test //Maman15/Client/test:all --config=github_gcc

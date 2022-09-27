@@ -19,7 +19,7 @@ NameString::NameString(const string& s)
 }
 
 bool NameString::operator==(const NameString& rhs) const {
-    return name_.data() == rhs.name_.data();
+    return name_ == rhs.name_;
 }
 
 bool NameString::operator!=(const NameString& rhs) const {
