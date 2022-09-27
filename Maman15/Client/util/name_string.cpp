@@ -19,7 +19,7 @@ NameString::NameString(const string& s)
 }
 
 bool NameString::operator==(const NameString& rhs) const {
-    return memcmp(name_.data(), rhs.name_.data(), name_.size()) == 0;
+    return name_.data() == name_.data();
 }
 
 bool NameString::operator!=(const NameString& rhs) const {
