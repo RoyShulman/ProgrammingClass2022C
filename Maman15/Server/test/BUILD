@@ -7,3 +7,11 @@ py_server_test(
     ],
     deps = ["//Maman15/Server/server:server_message"],
 )
+
+py_server_test(
+    name = "test_port_info",
+    srcs = [
+        "test_port_info.py",
+    ],
+    deps = ["//Maman15/Server/server:port_info"],
+)
