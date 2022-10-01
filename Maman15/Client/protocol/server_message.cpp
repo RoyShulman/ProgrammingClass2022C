@@ -77,11 +77,11 @@ AESKeyMessage AESKeyMessage::parse_from_incoming_message(shared_ptr<AbstractInco
     }
 }
 
-UploadFileSuccessful::UploadFileSuccessful(ServerVersion version, buuid::uuid uuid, util::NameString filename, uint32_t checksum)
+UploadFileSuccessfulMessage::UploadFileSuccessfulMessage(ServerVersion version, buuid::uuid uuid, util::NameString filename, uint32_t checksum)
     : ServerMessage(version, ServerMessageID::UPLOAD_FILE_SUCCESSFUL, std::move(uuid)), filename_(std::move(filename)), checksum_(checksum) {}
 
-UploadFileSuccessful UploadFileSuccessful::parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
-                                                                       ServerVersion expected_version) {
+UploadFileSuccessfulMessage UploadFileSuccessfulMessage::parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
+                                                                                     ServerVersion expected_version) {
     try {
         if (!message) {
             throw std::invalid_argument("message cannot be null");
@@ -94,6 +94,24 @@ UploadFileSuccessful UploadFileSuccessful::parse_from_incoming_message(shared_pt
         return {header.get_version(), header.get_uuid(), filename, checksum};
     } catch (const exception& e) {
         throw FailedToParseMessage("UploadFileSuccessful", e.what());
+    }
+}
+
+SuccessResponseMessage::SuccessResponseMessage(ServerVersion version, buuid::uuid uuid)
+    : ServerMessage(version, ServerMessageID::SUCCESS_RESPONSE, std::move(uuid)) {}
+
+SuccessResponseMessage SuccessResponseMessage::parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
+                                                                           ServerVersion expected_version) {
+    try {
+        if (!message) {
+            throw std::invalid_argument("message cannot be null");
+        }
+        ServerMessage header{parse_header_from_incoming_message(message,
+                                                                ServerMessageID::SUCCESS_RESPONSE,
+                                                                expected_version)};
+        return {header.get_version(), header.get_uuid()};
+    } catch (const exception& e) {
+        throw FailedToParseMessage("SuccessResponseMessage", e.what());
     }
 }
 

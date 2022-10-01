@@ -17,7 +17,8 @@ public:
 
 using client::protocol::AESKeyMessage;
 using client::protocol::RegistrationSuccessfulMessage;
-using client::protocol::UploadFileSuccessful;
+using client::protocol::SuccessResponseMessage;
+using client::protocol::UploadFileSuccessfulMessage;
 using ::testing::Return;
 
 TEST(ServerMessageTest, registration_successful_message) {
@@ -99,8 +100,21 @@ TEST(ServerMessageTest, upload_file_successful_message) {
         .WillOnce(Return(checksum));
 
     shared_ptr<MockIncomingMessageReader> reader{mock_reader};
-    UploadFileSuccessful message{UploadFileSuccessful::parse_from_incoming_message(reader, 3)};
+    UploadFileSuccessfulMessage message{UploadFileSuccessfulMessage::parse_from_incoming_message(reader, 3)};
 
     ASSERT_EQ(message.get_filename(), filename);
     ASSERT_EQ(message.get_checksum(), checksum);
+}
+
+TEST(ServerMessageTest, success_message) {
+    MockIncomingMessageReader* mock_reader = new MockIncomingMessageReader;
+    EXPECT_CALL(*mock_reader, read_uint8())
+        .WillOnce(Return(3));
+    EXPECT_CALL(*mock_reader, read_uint16())
+        .WillOnce(Return(2104));
+    EXPECT_CALL(*mock_reader, read_bytes(16))
+        .WillOnce(Return(string{"bb4f4460-3c25-11ed-b2bb-f2d20dd24480"}));
+
+    shared_ptr<MockIncomingMessageReader> reader{mock_reader};
+    SuccessResponseMessage message{SuccessResponseMessage::parse_from_incoming_message(reader, 3)};
 }

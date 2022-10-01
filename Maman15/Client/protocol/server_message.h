@@ -88,12 +88,12 @@ private:
     string aes_key_;
 };
 
-class UploadFileSuccessful : public ServerMessage {
+class UploadFileSuccessfulMessage : public ServerMessage {
 public:
-    UploadFileSuccessful(ServerVersion version, buuid::uuid uuid, util::NameString filename, uint32_t checksum);
+    UploadFileSuccessfulMessage(ServerVersion version, buuid::uuid uuid, util::NameString filename, uint32_t checksum);
 
-    static UploadFileSuccessful parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
-                                                            ServerVersion expected_version);
+    static UploadFileSuccessfulMessage parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
+                                                                   ServerVersion expected_version);
 
     const util::NameString& get_filename() const { return filename_; };
     uint32_t get_checksum() const { return checksum_; };
@@ -101,6 +101,14 @@ public:
 private:
     util::NameString filename_;
     uint32_t checksum_;
+};
+
+class SuccessResponseMessage : public ServerMessage {
+public:
+    SuccessResponseMessage(ServerVersion version, buuid::uuid uuid);
+
+    static SuccessResponseMessage parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
+                                                              ServerVersion expected_version);
 };
 
 }  // namespace protocol
