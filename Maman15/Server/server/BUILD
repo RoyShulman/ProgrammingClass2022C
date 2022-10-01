@@ -13,3 +13,11 @@ py_library(
         "//Maman15/Server/test:__pkg__",
     ],
 )
+
+py_library(
+    name = "crc32",
+    srcs = ["crc32.py"],
+    visibility = [
+        "//Maman15/Server/test:__pkg__",
+    ],
+)

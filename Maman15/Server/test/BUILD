@@ -15,3 +15,11 @@ py_server_test(
     ],
     deps = ["//Maman15/Server/server:port_info"],
 )
+
+py_server_test(
+    name = "test_crc32",
+    srcs = [
+        "test_crc32.py",
+    ],
+    deps = ["//Maman15/Server/server:crc32"],
+)
