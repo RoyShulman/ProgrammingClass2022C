@@ -23,3 +23,6 @@ jobs:
 
       - name: Test client
         run: bazel test //Maman15/Client/test:all --config=github_gcc
+
+      - name: Test server
+        run: bazel test //Maman15/Server/test:all --config=github_gcc
