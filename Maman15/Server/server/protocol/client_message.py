@@ -3,6 +3,7 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from uuid import UUID
 from typing import Any
+from dataclasses import dataclass
 
 
 class ClientMessageCode(Enum):
@@ -150,3 +151,57 @@ class UploadFileMessage(ClientMessage):
 
     def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
+
+
+class FileCRCOKMessage(ClientMessage):
+    @classmethod
+    def unpack(cls, reader: AbstractClientMessageReader) -> 'FileCRCOKMessage':
+        return cls()
+
+    @staticmethod
+    def MESSAGE_FMT() -> str:
+        return ""
+
+
+class FileCRCIncorrectWillRetryMessage(ClientMessage):
+    @classmethod
+    def unpack(cls, reader: AbstractClientMessageReader) -> 'FileCRCIncorrectWillRetryMessage':
+        return cls()
+
+    @staticmethod
+    def MESSAGE_FMT() -> str:
+        return ""
+
+
+class FileCRCIncorrectGivingUpMessage(ClientMessage):
+    @classmethod
+    def unpack(cls, reader: AbstractClientMessageReader) -> 'FileCRCIncorrectGivingUpMessage':
+        return cls()
+
+    @staticmethod
+    def MESSAGE_FMT() -> str:
+        return ""
+
+
+@dataclass(frozen=True)
+class ClientMessageWithHeader:
+    header: ClientMessageHeader
+    payload: ClientMessage
+
+
+class ClientMessageParser:
+    MESSAGE_CODE_TO_CLS = {
+        ClientMessageCode.REGISTRATION: ClientRegistrationRequest,
+        ClientMessageCode.CLIENT_PUBLIC_KEY: ClientPublicKeyMessage,
+        ClientMessageCode.UPLOAD_FILE: UploadFileMessage,
+        ClientMessageCode.FILE_CRC_OK: FileCRCOKMessage,
+        ClientMessageCode.CRC_INCORRECT_WILL_RETRY: FileCRCIncorrectWillRetryMessage,
+        ClientMessageCode.CRC_INCORRECT_GIVING_UP: FileCRCIncorrectGivingUpMessage,
+    }
+
+    @staticmethod
+    def parse_message(reader: AbstractClientMessageReader) -> 'ClientMessageWithHeader':
+        header = ClientMessageHeader.unpack(reader)
+        payload = ClientMessageParser.MESSAGE_CODE_TO_CLS[header.code].unpack(
+            reader)
+        return ClientMessageWithHeader(header, payload)
