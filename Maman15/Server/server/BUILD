@@ -1,10 +1,4 @@
-py_library(
-    name = "server_message",
-    srcs = ["server_message.py"],
-    visibility = [
-        "//Maman15/Server/test:__pkg__",
-    ],
-)
+
 
 py_library(
     name = "port_info",
@@ -17,6 +11,14 @@ py_library(
 py_library(
     name = "crc32",
     srcs = ["crc32.py"],
+    visibility = [
+        "//Maman15/Server/test:__pkg__",
+    ],
+)
+
+py_library(
+    name = "model",
+    srcs = ["server_model.py"],
     visibility = [
         "//Maman15/Server/test:__pkg__",
     ],

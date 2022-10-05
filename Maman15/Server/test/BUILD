@@ -5,7 +5,7 @@ py_server_test(
     srcs = [
         "test_server_message.py",
     ],
-    deps = ["//Maman15/Server/server:server_message"],
+    deps = ["//Maman15/Server/server/protocol:server_message"],
 )
 
 py_server_test(
@@ -22,4 +22,20 @@ py_server_test(
         "test_crc32.py",
     ],
     deps = ["//Maman15/Server/server:crc32"],
+)
+
+py_server_test(
+    name = "test_server_model",
+    srcs = [
+        "test_server_model.py",
+    ],
+    deps = ["//Maman15/Server/server:model"],
+)
+
+py_server_test(
+    name = "test_client_message",
+    srcs = [
+        "test_client_message.py",
+    ],
+    deps = ["//Maman15/Server/server/protocol:client_message"],
 )
