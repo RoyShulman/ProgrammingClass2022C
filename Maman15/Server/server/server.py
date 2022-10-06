@@ -3,10 +3,12 @@ import threading
 from ipaddress import IPv4Address
 from server.connection_interface import AbstractConnectionInterface, Address, IncomingConnection
 from server.protocol.client_message import ClientMessageParser, ClientMessageReader, ClientMessageWithHeader, ClientMessageCode
+from server.protocol.server_message import RegistrationSuccessfulMessage
 
 
 class Server:
     NUM_LISTENING_CONNECTIONS = 10
+    SERVER_VERSION = 3
 
     def __init__(self, port: int, connection: AbstractConnectionInterface) -> None:
         self.port = port
@@ -42,6 +44,8 @@ class Server:
 
     def register_client(self, client_connection: AbstractConnectionInterface, registration_message: ClientMessageWithHeader):
         self.logger.info(f"Registering new client")
+        response = RegistrationSuccessfulMessage(self.SERVER_VERSION, registration_message.header.client_id)
+        client_connection.send(response.pack())
 
     # def update_client_encryption_keys(self, client_connection: AbstractConnectionInterface, public_key_message: ClientMessageWithHeader):
 

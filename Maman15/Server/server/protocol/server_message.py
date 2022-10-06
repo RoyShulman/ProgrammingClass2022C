@@ -32,7 +32,7 @@ class ServerMessage(ABC):
 
     def pack_header(self) -> bytearray:
         return bytearray(struct.pack(self.HEADER_FMT, self.server_version,
-                                     self.code, self.get_payload_size()))
+                                     self.code.value, self.get_payload_size()))
 
 
 class RegistrationSuccessfulMessage(ServerMessage):
@@ -41,7 +41,7 @@ class RegistrationSuccessfulMessage(ServerMessage):
         self.uuid = uuid
 
     def pack(self) -> bytearray:
-        return super().pack() + struct.pack(self.PAYLOAD_FMT, self.uuid)
+        return super().pack() + struct.pack(self.PAYLOAD_FMT, self.uuid.bytes)
 
     @property
     def PAYLOAD_FMT(self) -> str:
@@ -78,6 +78,7 @@ class UploadFileSuccessfulMessage(ServerMessage):
     @property
     def PAYLOAD_FMT(self) -> str:
         return "<16sI255sI"
+
 
 class SuccessResponseMessage(ServerMessage):
     def __init__(self, server_version: int) -> None:

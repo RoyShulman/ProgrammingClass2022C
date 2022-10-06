@@ -37,6 +37,16 @@ py_server_test(
     srcs = [
         "test_client_message.py",
     ],
-    deps = ["//Maman15/Server/server/protocol:client_message",
-            "//Maman15/Server/server:connection_interface"],
+    deps = [
+        "//Maman15/Server/server:connection_interface",
+        "//Maman15/Server/server/protocol:client_message",
+    ],
+)
+
+py_server_test(
+    name = "test_server",
+    srcs = [
+        "test_server.py",
+    ],
+    deps = ["//Maman15/Server/server"],
 )
