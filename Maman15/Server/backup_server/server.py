@@ -49,6 +49,7 @@ class Server:
     NUM_LISTENING_CONNECTIONS = 10
     SERVER_VERSION = 3
     AES_KEY_SIZE = 16
+    LISTENING_ADDRESS = IPv4Address("0.0.0.0")
 
     def __init__(self, port: int, connection: AbstractConnectionInterface, model: AbstractServerModel,
                  encryption_utils: AbstractEncryptionUtils,
@@ -62,7 +63,7 @@ class Server:
 
     def server_requests(self) -> None:
         self.logger.info(f"Starting to serve requests on port: {self.port}")
-        self.connection.bind(Address(IPv4Address(""), self.port))
+        self.connection.bind(Address(self.LISTENING_ADDRESS, self.port))
         self.connection.listen(self.NUM_LISTENING_CONNECTIONS)
         while True:
             incoming_connection = self.connection.accept()

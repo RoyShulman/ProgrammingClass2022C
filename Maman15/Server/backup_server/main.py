@@ -15,9 +15,9 @@ def main():
     # Just for this program, in real life application we don't want to delete the user files
     # but I don't want the files to be kept forever
     with tempfile.TemporaryDirectory() as tmpdir:
-        server = ServerManager(connection, model,
-                               encryption_utils, Path(tmpdir)).get_server()
-        server.server_requests()
+        with ServerManager(connection, model,
+                           encryption_utils, Path(tmpdir)).get_server() as server:
+            server.server_requests()
 
 
 if __name__ == "__main__":

@@ -65,7 +65,7 @@ class SocketConnectionInterface(AbstractConnectionInterface):
         return IncomingConnection(SocketConnectionInterface(client_socket), addr)
 
     def bind(self, addr: Address) -> None:
-        self.socket.bind((addr.ip, addr.port))
+        self.socket.bind((str(addr.ip), addr.port))
 
     def listen(self, num_connections: int) -> None:
         self.socket.listen(num_connections)

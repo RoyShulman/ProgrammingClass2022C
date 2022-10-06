@@ -1,4 +1,6 @@
 from pathlib import Path
+from contextlib import closing, contextmanager
+from typing import Iterator
 from backup_server.connection_interface import AbstractConnectionInterface
 from backup_server.encryption_utils import AbstractEncryptionUtils
 from backup_server.server import Server
@@ -16,10 +18,12 @@ class ServerManager:
         self.encryption_utils = encryption_utils
         self.base_storage_path = base_storage_path
 
-    def get_server(self) -> Server:
+    @contextmanager
+    def get_server(self) -> Iterator[Server]:
         try:
             port = PortInfo.from_file().port
         except PortInfoFileNotFound:
             port = self.DEFAULT_PORT
-        return Server(port, self.connection, self.model,
-                      self.encryption_utils, self.base_storage_path)
+        with closing(Server(port, self.connection, self.model,
+                            self.encryption_utils, self.base_storage_path)) as server:
+            yield server
