@@ -12,11 +12,16 @@ from server.protocol.client_message import (
     ClientMessageCode,
     ClientRegistrationRequest,
     ClientPublicKeyMessage,
-    UploadFileMessage)
+    FileCRCIncorrectGivingUpMessage,
+    FileCRCIncorrectWillRetryMessage,
+    FileCRCOKMessage,
+    UploadFileMessage,
+)
 from server.protocol.server_message import (
     RegistrationSuccessfulMessage,
     AESKeyMessage,
-    UploadFileSuccessfulMessage
+    UploadFileSuccessfulMessage,
+    SuccessResponseMessage
 )
 from server.server_model import AbstractServerModel, Client
 from server.encryption_utils import AbstractEncryptionUtils
@@ -88,12 +93,33 @@ class Server:
         message = message_handler.read_message()
         self.handle_upload_file_message(incoming_connection.connection,
                                         message)
+        # The upload file message can be sent again, or a checksum ok, or final checksum incorrect
+        self.handle_post_file_upload(message_handler, incoming_connection)
+
+    def handle_post_file_upload(self, message_handler: ClientConnectionMessageReader, incoming_connection: IncomingConnection):
+        message = message_handler.read_message()
+        while isinstance(message.payload, FileCRCIncorrectWillRetryMessage):
+            message = message_handler.read_message()
+            self.handle_upload_file_message(
+                incoming_connection.connection, message)
+            message = message_handler.read_message()
+        # Client either accepted our checksum, or gave up
+        if isinstance(message.payload, FileCRCIncorrectGivingUpMessage):
+            self.logger.error(f"{message.header.client_id} Gave up")
+        elif isinstance(message.payload, FileCRCOKMessage):
+            incoming_connection.connection.send(
+                SuccessResponseMessage(self.SERVER_VERSION).pack())
+        else:
+            raise WrongMessageReceived(message)
+        self.logger.info(f"Closing connection from {incoming_connection.addr}")
+        incoming_connection.connection.close()
 
     def handle_upload_file_message(self, client_connection: AbstractConnectionInterface,
                                    message: ClientMessageWithHeader):
         if not isinstance(message.payload, UploadFileMessage):
             raise WrongMessageReceived(message)
 
+        self.logger.info(f"{message.header.client_id} uploaded a file")
         aes_key = self.model.get_client_aes_key(message.header.client_id)
         plain_content = self.encryption_utils.aes_decrypt(
             message.payload.content, aes_key)
