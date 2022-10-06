@@ -55,7 +55,7 @@ class AESKeyMessage(ServerMessage):
         self.aes_key = aes_key
 
     def pack(self) -> bytearray:
-        return super().pack() + struct.pack(self.PAYLOAD_FMT, self.aes_key)
+        return super().pack() + struct.pack(self.PAYLOAD_FMT, self.uuid.bytes, self.aes_key)
 
     @property
     def PAYLOAD_FMT(self) -> str:
