@@ -40,6 +40,7 @@ class MockServerModel(AbstractServerModel):
 
 class MockEncryptionUtils(AbstractEncryptionUtils):
     get_aes_key = MagicMock(return_value=b"1234567890123456")
+    rsa_encrypt = MagicMock(return_value=b"1"*128)
 
 
 def pack_header(header: ClientMessageHeader) -> bytes:
@@ -114,7 +115,7 @@ class ServerTest(unittest.TestCase):
 
         self.send.assert_called_once_with(AESKeyMessage(self.server.SERVER_VERSION,
                                                         message.header.client_id,
-                                                        b"1234567890123456").pack())
+                                                        b"1"*128).pack())
         cast(MagicMock, self.model.update_client_public_key).assert_called_once_with(message.header.client_id,
                                                                                      message.payload.public_key)
 

@@ -59,7 +59,7 @@ class AESKeyMessage(ServerMessage):
 
     @property
     def PAYLOAD_FMT(self) -> str:
-        return "<16s16s"
+        return f"<16s{len(self.aes_key)}s"
 
 
 class UploadFileSuccessfulMessage(ServerMessage):

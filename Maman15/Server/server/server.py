@@ -9,13 +9,15 @@ from server.protocol.client_message import (
     ClientMessageWithHeader,
     ClientMessageCode,
     ClientRegistrationRequest,
-    ClientPublicKeyMessage)
+    ClientPublicKeyMessage,
+    UploadFileMessage)
 from server.protocol.server_message import (
     RegistrationSuccessfulMessage,
     AESKeyMessage
 )
 from server.server_model import AbstractServerModel, Client
 from server.encryption_utils import AbstractEncryptionUtils
+from server.file_manager import FileManager
 
 
 class ClientAlreadyRegisteredException(Exception):
@@ -46,6 +48,7 @@ class Server:
         self.connection = connection
         self.model = model
         self.encryption_utils = encryption_utils
+        self.file_manager = FileManager
         self.logger = logging.getLogger(__name__)
 
     def server_requests(self) -> None:
@@ -78,17 +81,29 @@ class Server:
             message = message_handler.read_message()
         self.handle_public_key_message(incoming_connection.connection, message)
 
+        message = message_handler.read_message()
+        self.handle_upload_file_message(incoming_connection.connection,
+                                        message)
+
+    def handle_upload_file_message(self, client_connection: AbstractConnectionInterface,
+                                   message: ClientMessageWithHeader):
+        if not isinstance(message.payload, UploadFileMessage):
+            raise WrongMessageReceived(message)
+
     def handle_public_key_message(self, client_connection: AbstractConnectionInterface,
                                   message: ClientMessageWithHeader):
         if not isinstance(message.payload, ClientPublicKeyMessage):
             raise WrongMessageReceived(message)
 
-        self.model.update_client_public_key(
-            message.header.client_id, message.payload.public_key)
+        self.logger.info(f"Updating public key for {message.header.client_id}")
+        self.model.update_client_public_key(message.header.client_id,
+                                            message.payload.public_key)
         aes_key = self.encryption_utils.get_aes_key(self.AES_KEY_SIZE)
+        encrypted_aes_key = self.encryption_utils.rsa_encrypt(
+            aes_key, message.payload.public_key)
         response = AESKeyMessage(self.SERVER_VERSION,
                                  message.header.client_id,
-                                 aes_key)
+                                 encrypted_aes_key)
         client_connection.send(response.pack())
 
     def handle_possible_registration_request(self, client_connection: AbstractConnectionInterface,

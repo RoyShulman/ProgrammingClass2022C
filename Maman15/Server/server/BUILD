@@ -39,6 +39,14 @@ py_library(
 )
 
 py_library(
+    name = "file_manager",
+    srcs = ["file_manager.py"],
+    visibility = [
+        "//Maman15/Server/test:__pkg__",
+    ],
+)
+
+py_library(
     name = "server",
     srcs = ["server.py"],
     visibility = [
@@ -47,6 +55,7 @@ py_library(
     deps = [
         ":connection_interface",
         ":encryption_utils",
+        ":file_manager",
         ":model",
         "//Maman15/Server/server/protocol:client_message",
         "//Maman15/Server/server/protocol:server_message",
