@@ -5,27 +5,34 @@ from unittest.mock import MagicMock
 from typing import cast
 from uuid import uuid4
 from server.protocol.client_message import (
-    AbstractClientMessageReader,
+    ClientMessageReader,
     ClientMessageHeader,
     ClientMessageCode,
     ClientRegistrationRequest,
     ClientPublicKeyMessage,
     UploadFileMessage
 )
+from server.connection_interface import AbstractConnectionInterface
 
 
-class MockClientMessageReader(AbstractClientMessageReader):
-    read = MagicMock()
+class MockConnectionInterface(AbstractConnectionInterface):
+    recv = MagicMock()
+    close = MagicMock()
+    send = MagicMock()
+    bind = MagicMock()
+    listen = MagicMock()
+    accept = MagicMock()
 
 
 class ClientMessageTest(unittest.TestCase):
     def setUp(self) -> None:
         self.client_uuid = uuid4()
-        self.reader = MockClientMessageReader()
-        self.mock_reader = cast(MagicMock, self.reader.read)
+        mock_interface = MockConnectionInterface()
+        self.reader = ClientMessageReader(mock_interface)
+        self.mock_reader = cast(MagicMock, mock_interface.recv)
 
     def tearDown(self) -> None:
-        cast(MagicMock, self.reader.read).reset_mock()
+        self.mock_reader.reset_mock()
 
     def test_unpack_header(self):
         self.mock_reader.side_effect = [struct.pack("<16sBHI", self.client_uuid.bytes,

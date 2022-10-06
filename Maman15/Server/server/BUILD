@@ -1,5 +1,3 @@
-
-
 py_library(
     name = "port_info",
     srcs = ["port_info.py"],
@@ -21,5 +19,26 @@ py_library(
     srcs = ["server_model.py"],
     visibility = [
         "//Maman15/Server/test:__pkg__",
+    ],
+)
+
+py_library(
+    name = "connection_interface",
+    srcs = ["connection_interface.py"],
+    visibility = [
+        "//Maman15/Server/test:__pkg__",
+    ],
+)
+
+py_library(
+    name = "server",
+    srcs = ["server.py"],
+    visibility = [
+        "//Maman15/Server/test:__pkg__",
+    ],
+    deps = [
+        ":connection_interface",
+        "//Maman15/Server/server/protocol:client_message",
+        "//Maman15/Server/server/protocol:server_message",
     ],
 )

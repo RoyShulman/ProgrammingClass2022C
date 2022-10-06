@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 from typing import Any
 from dataclasses import dataclass
+from server.connection_interface import AbstractConnectionInterface
 
 
 class ClientMessageCode(Enum):
@@ -15,14 +16,17 @@ class ClientMessageCode(Enum):
     CRC_INCORRECT_GIVING_UP = 1106
 
 
-class AbstractClientMessageReader(ABC):
+class ClientMessageReader:
     """
-    Abstract class to read messages.
+    class to read messages.
     Allows us to test the ClientMessage parsing without a connection
     """
-    @abstractmethod
+
+    def __init__(self, connection: AbstractConnectionInterface) -> None:
+        self.connection = connection
+
     def read(self, size: int) -> bytes:
-        raise NotImplementedError
+        return self.connection.recv(size)
 
 
 class ClientMessageCodeMissmatch(Exception):
@@ -32,11 +36,11 @@ class ClientMessageCodeMissmatch(Exception):
 class ClientMessage(ABC):
     """
     Base class for all client messages.
-    The class should support unpacking from a AbstractClientMessageReader
+    The class should support unpacking from a ClientMessageReader
     """
     @classmethod
     @abstractmethod
-    def unpack(cls, reader: AbstractClientMessageReader) -> 'ClientMessage':
+    def unpack(cls, reader: ClientMessageReader) -> 'ClientMessage':
         raise NotImplementedError
 
     @staticmethod
@@ -45,7 +49,7 @@ class ClientMessage(ABC):
         raise NotImplementedError
 
     @staticmethod
-    def read_fmt(fmt: str, reader: AbstractClientMessageReader) -> Any:
+    def read_fmt(fmt: str, reader: ClientMessageReader) -> Any:
         return struct.unpack(fmt, reader.read(struct.calcsize(fmt)))
 
     def validate_message_code(self, expected: ClientMessageCode, real: ClientMessageCode):
@@ -61,7 +65,7 @@ class ClientMessageHeader(ClientMessage):
         self.payload_size = payload_size
 
     @classmethod
-    def unpack(cls, reader: AbstractClientMessageReader) -> 'ClientMessageHeader':
+    def unpack(cls, reader: ClientMessageReader) -> 'ClientMessageHeader':
         client_id, client_version, code, payload_size = cls.read_fmt(cls.MESSAGE_FMT(),
                                                                      reader)
         return cls(UUID(bytes=client_id), client_version, ClientMessageCode(code), payload_size)
@@ -87,7 +91,7 @@ class ClientRegistrationRequest(ClientMessage):
         self.name = name
 
     @classmethod
-    def unpack(cls, reader: AbstractClientMessageReader) -> 'ClientRegistrationRequest':
+    def unpack(cls, reader: ClientMessageReader) -> 'ClientRegistrationRequest':
         name = cls.read_fmt(cls.MESSAGE_FMT(), reader)[0]
         return cls(name.decode())
 
@@ -110,7 +114,7 @@ class ClientPublicKeyMessage(ClientMessage):
         self.public_key = public_key
 
     @classmethod
-    def unpack(cls, reader: AbstractClientMessageReader) -> 'ClientPublicKeyMessage':
+    def unpack(cls, reader: ClientMessageReader) -> 'ClientPublicKeyMessage':
         name, public_key = cls.read_fmt(cls.MESSAGE_FMT(), reader)
         return cls(name.decode(), public_key)
 
@@ -134,7 +138,7 @@ class UploadFileMessage(ClientMessage):
         self.content = content
 
     @classmethod
-    def unpack(cls, reader: AbstractClientMessageReader) -> 'UploadFileMessage':
+    def unpack(cls, reader: ClientMessageReader) -> 'UploadFileMessage':
         client_uuid, content_size, filename = cls.read_fmt(
             cls.MESSAGE_FMT(), reader)
         content = cls.read_fmt(f"<{content_size}s", reader)[0]
@@ -155,7 +159,7 @@ class UploadFileMessage(ClientMessage):
 
 class FileCRCOKMessage(ClientMessage):
     @classmethod
-    def unpack(cls, reader: AbstractClientMessageReader) -> 'FileCRCOKMessage':
+    def unpack(cls, reader: ClientMessageReader) -> 'FileCRCOKMessage':
         return cls()
 
     @staticmethod
@@ -165,7 +169,7 @@ class FileCRCOKMessage(ClientMessage):
 
 class FileCRCIncorrectWillRetryMessage(ClientMessage):
     @classmethod
-    def unpack(cls, reader: AbstractClientMessageReader) -> 'FileCRCIncorrectWillRetryMessage':
+    def unpack(cls, reader: ClientMessageReader) -> 'FileCRCIncorrectWillRetryMessage':
         return cls()
 
     @staticmethod
@@ -175,7 +179,7 @@ class FileCRCIncorrectWillRetryMessage(ClientMessage):
 
 class FileCRCIncorrectGivingUpMessage(ClientMessage):
     @classmethod
-    def unpack(cls, reader: AbstractClientMessageReader) -> 'FileCRCIncorrectGivingUpMessage':
+    def unpack(cls, reader: ClientMessageReader) -> 'FileCRCIncorrectGivingUpMessage':
         return cls()
 
     @staticmethod
@@ -200,7 +204,7 @@ class ClientMessageParser:
     }
 
     @staticmethod
-    def parse_message(reader: AbstractClientMessageReader) -> 'ClientMessageWithHeader':
+    def parse_message(reader: ClientMessageReader) -> 'ClientMessageWithHeader':
         header = ClientMessageHeader.unpack(reader)
         payload = ClientMessageParser.MESSAGE_CODE_TO_CLS[header.code].unpack(
             reader)
