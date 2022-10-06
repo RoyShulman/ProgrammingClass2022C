@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from server.port_info import PortInfo, InvalidPortInfoFile
+from backup_server.port_info import PortInfo, InvalidPortInfoFile
 
 
 class PortInfoTest(unittest.TestCase):

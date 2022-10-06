@@ -5,7 +5,7 @@ py_server_test(
     srcs = [
         "test_server_message.py",
     ],
-    deps = ["//Maman15/Server/server/protocol:server_message"],
+    deps = ["//Maman15/Server/backup_server/protocol:server_message"],
 )
 
 py_server_test(
@@ -29,7 +29,7 @@ py_server_test(
     srcs = [
         "test_server_model.py",
     ],
-    deps = ["//Maman15/Server/server:model"],
+    deps = ["//Maman15/Server/backup_server:model"],
 )
 
 py_server_test(
@@ -38,8 +38,8 @@ py_server_test(
         "test_client_message.py",
     ],
     deps = [
-        "//Maman15/Server/server:connection_interface",
-        "//Maman15/Server/server/protocol:client_message",
+        "//Maman15/Server/backup_server:connection_interface",
+        "//Maman15/Server/backup_server/protocol:client_message",
     ],
 )
 
@@ -48,5 +48,5 @@ py_server_test(
     srcs = [
         "test_server.py",
     ],
-    deps = ["//Maman15/Server/server"],
+    deps = ["//Maman15/Server/backup_server:server"],
 )

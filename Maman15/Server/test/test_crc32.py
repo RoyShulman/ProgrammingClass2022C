@@ -1,5 +1,5 @@
 import unittest
-from server.crc32 import crc32
+from backup_server.crc32 import crc32
 
 
 class CRC32Test(unittest.TestCase):

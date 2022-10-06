@@ -1,9 +1,9 @@
 from pathlib import Path
-from server.connection_interface import AbstractConnectionInterface
-from server.encryption_utils import AbstractEncryptionUtils
-from server.server import Server
-from server.port_info import PortInfo, PortInfoFileNotFound
-from server.server_model import AbstractServerModel
+from backup_server.connection_interface import AbstractConnectionInterface
+from backup_server.encryption_utils import AbstractEncryptionUtils
+from backup_server.server import Server
+from backup_server.port_info import PortInfo, PortInfoFileNotFound
+from backup_server.server_model import AbstractServerModel
 
 
 class ServerManager:

@@ -1,7 +1,7 @@
 import unittest
 import uuid
 import secrets
-from server.protocol.server_message import (
+from backup_server.protocol.server_message import (
     RegistrationSuccessfulMessage,
     AESKeyMessage,
     UploadFileSuccessfulMessage,

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 from typing import Any
 from dataclasses import dataclass
-from server.connection_interface import AbstractConnectionInterface
+from backup_server.connection_interface import AbstractConnectionInterface
 
 
 class ClientMessageCode(Enum):

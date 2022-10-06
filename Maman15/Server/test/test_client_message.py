@@ -4,7 +4,7 @@ import secrets
 from unittest.mock import MagicMock
 from typing import cast
 from uuid import uuid4
-from server.protocol.client_message import (
+from backup_server.protocol.client_message import (
     ClientMessageReader,
     ClientMessageHeader,
     ClientMessageCode,
@@ -12,7 +12,7 @@ from server.protocol.client_message import (
     ClientPublicKeyMessage,
     UploadFileMessage
 )
-from server.connection_interface import AbstractConnectionInterface
+from backup_server.connection_interface import AbstractConnectionInterface
 
 
 class MockConnectionInterface(AbstractConnectionInterface):

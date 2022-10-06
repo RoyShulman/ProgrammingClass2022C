@@ -8,19 +8,19 @@ from ipaddress import IPv4Address
 from unittest.mock import MagicMock, ANY
 from typing import cast
 from ipaddress import IPv4Address
-from server.server import Server, ClientAlreadyRegisteredException, WrongMessageReceived
-from server.connection_interface import AbstractConnectionInterface, IncomingConnection, Address
-from server.protocol.client_message import (
+from backup_server.server import Server, ClientAlreadyRegisteredException, WrongMessageReceived
+from backup_server.connection_interface import AbstractConnectionInterface, IncomingConnection, Address
+from backup_server.protocol.client_message import (
     ClientMessageCode,
     ClientMessageHeader,
     ClientMessageWithHeader,
     ClientRegistrationRequest,
     ClientPublicKeyMessage,
     UploadFileMessage)
-from server.protocol.server_message import AESKeyMessage, RegistrationSuccessfulMessage, UploadFileSuccessfulMessage
-from server.server_model import AbstractServerModel, Client
-from server.encryption_utils import AbstractEncryptionUtils
-from server.crc32 import crc32
+from backup_server.protocol.server_message import AESKeyMessage, RegistrationSuccessfulMessage, UploadFileSuccessfulMessage
+from backup_server.server_model import AbstractServerModel, Client
+from backup_server.encryption_utils import AbstractEncryptionUtils
+from backup_server.crc32 import crc32
 
 
 class MockConnectionInterface(AbstractConnectionInterface):

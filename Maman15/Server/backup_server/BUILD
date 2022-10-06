@@ -58,8 +58,8 @@ py_library(
         ":encryption_utils",
         ":file_manager",
         ":model",
-        "//Maman15/Server/server/protocol:client_message",
-        "//Maman15/Server/server/protocol:server_message",
+        "//Maman15/Server/backup_server/protocol:client_message",
+        "//Maman15/Server/backup_server/protocol:server_message",
     ],
 )
 
@@ -71,12 +71,14 @@ py_library(
     ],
     deps = [
         ":server",
+        ":port_info"
     ],
 )
 
 py_binary(
     name = "main",
     srcs = ["main.py"],
+    imports = ["../"],
     deps = [
         ":server_manager",
     ],

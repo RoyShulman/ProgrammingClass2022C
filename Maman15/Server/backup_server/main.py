@@ -1,10 +1,10 @@
-from pathlib import Path
 import socket
 import tempfile
-from server.server_manager import ServerManager
-from server.connection_interface import SocketConnectionInterface
-from server.server_model import ServerModel
-from server.encryption_utils import EncryptionUtils
+from pathlib import Path
+from backup_server.server_manager import ServerManager
+from backup_server.connection_interface import SocketConnectionInterface
+from backup_server.server_model import ServerModel
+from backup_server.encryption_utils import EncryptionUtils
 
 
 def main():

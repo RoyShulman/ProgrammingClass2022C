@@ -3,9 +3,9 @@ from pathlib import Path
 import threading
 from datetime import datetime
 from ipaddress import IPv4Address
-from server.connection_interface import AbstractConnectionInterface, Address, IncomingConnection
-from server.crc32 import crc32
-from server.protocol.client_message import (
+from backup_server.connection_interface import AbstractConnectionInterface, Address, IncomingConnection
+from backup_server.crc32 import crc32
+from backup_server.protocol.client_message import (
     ClientMessageParser,
     ClientMessageReader,
     ClientMessageWithHeader,
@@ -17,15 +17,15 @@ from server.protocol.client_message import (
     FileCRCOKMessage,
     UploadFileMessage,
 )
-from server.protocol.server_message import (
+from backup_server.protocol.server_message import (
     RegistrationSuccessfulMessage,
     AESKeyMessage,
     UploadFileSuccessfulMessage,
     SuccessResponseMessage
 )
-from server.server_model import AbstractServerModel, Client
-from server.encryption_utils import AbstractEncryptionUtils
-from server.file_manager import FileManager
+from backup_server.server_model import AbstractServerModel, Client
+from backup_server.encryption_utils import AbstractEncryptionUtils
+from backup_server.file_manager import FileManager
 
 
 class ClientAlreadyRegisteredException(Exception):
