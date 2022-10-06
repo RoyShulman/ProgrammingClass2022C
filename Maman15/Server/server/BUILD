@@ -62,3 +62,22 @@ py_library(
         "//Maman15/Server/server/protocol:server_message",
     ],
 )
+
+py_library(
+    name = "server_manager",
+    srcs = ["server_manager.py"],
+    visibility = [
+        "//Maman15/Server/test:__pkg__",
+    ],
+    deps = [
+        ":server",
+    ],
+)
+
+py_binary(
+    name = "main",
+    srcs = ["main.py"],
+    deps = [
+        ":server_manager",
+    ],
+)
