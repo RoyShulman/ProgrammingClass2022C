@@ -13,6 +13,10 @@ class ClientWithSpecifiedUUIDNotFound(Exception):
     pass
 
 
+class ClientDoesNotExist(Exception):
+    pass
+
+
 @dataclass
 class Client:
     uuid: UUID
@@ -30,6 +34,11 @@ class Client:
 
 
 class AbstractServerModel(ABC):
+    """
+    Abstract interface to the database.
+    Allows unit testing the server without a database, and to change our database if at some point
+    in the future we want to change from sql to a different one
+    """
     @abstractmethod
     def create_tables_if_needed(self) -> None:
         raise NotImplementedError
@@ -51,13 +60,22 @@ class AbstractServerModel(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update_client_public_key(self, client_uuid: UUID, public_key: bytes) -> None:
+    def update_client_keys(self, client_uuid: UUID, public_key: bytes, aes_key: bytes) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def store_file(self, client_uuid: UUID, filename: str, path: Path) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_client_aes_key(self, client_uuid: UUID) -> bytes:
         raise NotImplementedError
 
 
 class ServerModel(AbstractServerModel):
     CLIENTS_TABLE = "clients"
     FILES_TABLE = "files"
+    MAX_FILENAME_SIZE = 255
 
     def __init__(self, database_path: Path = Path("server.db")) -> None:
         # Allow for multi threaded reading - note we still keep writing serial
@@ -79,10 +97,11 @@ class ServerModel(AbstractServerModel):
             f"LastSeen TIMESTAMP,"\
             f"AESKey BINARY(256))"
 
+        # TODO: is the id supposed to be primary key?
         files_table = f"CREATE TABLE IF NOT EXISTS {self.FILES_TABLE}("\
             f"ID BINARY(16),"\
-            f"FileName VARCHAR(256),"\
-            f"PathName VARCHAR(256),"\
+            f"FileName VARCHAR({self.MAX_FILENAME_SIZE}),"\
+            f"PathName VARCHAR({self.MAX_FILENAME_SIZE}),"\
             f"Verified BIT"\
             f")"
 
@@ -120,6 +139,21 @@ class ServerModel(AbstractServerModel):
             raise ClientWithSpecifiedUUIDNotFound(client_uuid)
         return found_clients[0]
 
-    def update_client_public_key(self, client_uuid: UUID, public_key: bytes) -> None:
-        query = f'UPDATE {self.CLIENTS_TABLE} SET Publickey = ? WHERE ID = ?"'
-        self.execute_write_query(query, (public_key, client_uuid.bytes))
+    def update_client_keys(self, client_uuid: UUID, public_key: bytes, aes_key: bytes) -> None:
+        query = f'UPDATE {self.CLIENTS_TABLE} SET Publickey = ?, AESKey = ? WHERE ID = ?"'
+        self.execute_write_query(query,
+                                 (public_key, aes_key, client_uuid.bytes))
+
+    def store_file(self, client_uuid: UUID, filename: str, path: Path) -> None:
+        query = f"INSERT INTO {self.FILES_TABLE} VALUES(?, ?, ?, ?)"
+        # File are initially unverified
+        self.execute_write_query(
+            query, (client_uuid, filename, str(path), False))
+
+    def get_client_aes_key(self, client_uuid: UUID) -> bytes:
+        query = f'SELECT AESKey FROM {self.CLIENTS_TABLE} WHERE ID = ?'
+        cursor = self.conn.execute(query, client_uuid.bytes)
+        found = cursor.fetchall()
+        if not found:
+            raise ClientDoesNotExist(client_uuid)
+        return found[0]

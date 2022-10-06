@@ -1,7 +1,7 @@
 import secrets
 from abc import ABC, abstractmethod
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Cipher import PKCS1_OAEP, AES
 
 
 class AbstractEncryptionUtils(ABC):
@@ -21,6 +21,11 @@ class AbstractEncryptionUtils(ABC):
     def rsa_encrypt(plain: bytes, public_key: bytes) -> bytes:
         raise NotImplementedError
 
+    @staticmethod
+    @abstractmethod
+    def aes_decrypt(cipher: bytes, aes_key: bytes) -> bytes:
+        raise NotImplementedError
+
 
 class EncryptionUtils(AbstractEncryptionUtils):
     @staticmethod
@@ -33,3 +38,9 @@ class EncryptionUtils(AbstractEncryptionUtils):
         recipient_key = RSA.import_key(public_key)
         cipher_rsa = PKCS1_OAEP.new(recipient_key)
         return cipher_rsa.encrypt(plain)
+
+    @staticmethod
+    def aes_decrypt(cipher: bytes, aes_key: bytes) -> bytes:
+        # taken from https://pycryptodome.readthedocs.io/en/latest/src/examples.html#encrypt-data-with-rsa
+        cipher_aes = AES.new(key=aes_key, mode=AES.MODE_CBC, nonce=b"\x00"*16)
+        return cipher_aes.decrypt(cipher)

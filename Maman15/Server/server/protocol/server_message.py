@@ -72,7 +72,7 @@ class UploadFileSuccessfulMessage(ServerMessage):
         self.checksum = checksum
 
     def pack(self) -> bytearray:
-        return super().pack() + struct.pack(self.PAYLOAD_FMT, self.uuid,
+        return super().pack() + struct.pack(self.PAYLOAD_FMT, self.uuid.bytes,
                                             self.content_size, self.filename.encode(), self.checksum)
 
     @property

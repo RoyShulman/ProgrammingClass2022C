@@ -1,8 +1,10 @@
 import logging
+from pathlib import Path
 import threading
 from datetime import datetime
 from ipaddress import IPv4Address
 from server.connection_interface import AbstractConnectionInterface, Address, IncomingConnection
+from server.crc32 import crc32
 from server.protocol.client_message import (
     ClientMessageParser,
     ClientMessageReader,
@@ -13,7 +15,8 @@ from server.protocol.client_message import (
     UploadFileMessage)
 from server.protocol.server_message import (
     RegistrationSuccessfulMessage,
-    AESKeyMessage
+    AESKeyMessage,
+    UploadFileSuccessfulMessage
 )
 from server.server_model import AbstractServerModel, Client
 from server.encryption_utils import AbstractEncryptionUtils
@@ -43,12 +46,13 @@ class Server:
     AES_KEY_SIZE = 16
 
     def __init__(self, port: int, connection: AbstractConnectionInterface, model: AbstractServerModel,
-                 encryption_utils: AbstractEncryptionUtils) -> None:
+                 encryption_utils: AbstractEncryptionUtils,
+                 base_storage_path: Path) -> None:
         self.port = port
         self.connection = connection
         self.model = model
         self.encryption_utils = encryption_utils
-        self.file_manager = FileManager
+        self.file_manager = FileManager(base_storage_path)
         self.logger = logging.getLogger(__name__)
 
     def server_requests(self) -> None:
@@ -90,15 +94,29 @@ class Server:
         if not isinstance(message.payload, UploadFileMessage):
             raise WrongMessageReceived(message)
 
+        aes_key = self.model.get_client_aes_key(message.header.client_id)
+        plain_content = self.encryption_utils.aes_decrypt(
+            message.payload.content, aes_key)
+        checksum = crc32(plain_content)
+        local_path = self.file_manager.store_file(plain_content)
+
+        self.model.store_file(message.header.client_id,
+                              message.payload.filename, local_path)
+        response = UploadFileSuccessfulMessage(self.SERVER_VERSION,
+                                               message.header.client_id,
+                                               len(plain_content), message.payload.filename, checksum)
+        client_connection.send(response.pack())
+
     def handle_public_key_message(self, client_connection: AbstractConnectionInterface,
                                   message: ClientMessageWithHeader):
         if not isinstance(message.payload, ClientPublicKeyMessage):
             raise WrongMessageReceived(message)
 
         self.logger.info(f"Updating public key for {message.header.client_id}")
-        self.model.update_client_public_key(message.header.client_id,
-                                            message.payload.public_key)
         aes_key = self.encryption_utils.get_aes_key(self.AES_KEY_SIZE)
+        self.model.update_client_keys(message.header.client_id,
+                                      message.payload.public_key,
+                                      aes_key)
         encrypted_aes_key = self.encryption_utils.rsa_encrypt(
             aes_key, message.payload.public_key)
         response = AESKeyMessage(self.SERVER_VERSION,

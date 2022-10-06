@@ -54,6 +54,7 @@ py_library(
     ],
     deps = [
         ":connection_interface",
+        ":crc32",
         ":encryption_utils",
         ":file_manager",
         ":model",

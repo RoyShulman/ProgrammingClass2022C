@@ -1,3 +1,4 @@
+from pathlib import Path
 import unittest
 import struct
 import uuid
@@ -14,10 +15,12 @@ from server.protocol.client_message import (
     ClientMessageHeader,
     ClientMessageWithHeader,
     ClientRegistrationRequest,
-    ClientPublicKeyMessage)
-from server.protocol.server_message import AESKeyMessage, RegistrationSuccessfulMessage
+    ClientPublicKeyMessage,
+    UploadFileMessage)
+from server.protocol.server_message import AESKeyMessage, RegistrationSuccessfulMessage, UploadFileSuccessfulMessage
 from server.server_model import AbstractServerModel, Client
 from server.encryption_utils import AbstractEncryptionUtils
+from server.crc32 import crc32
 
 
 class MockConnectionInterface(AbstractConnectionInterface):
@@ -35,12 +38,15 @@ class MockServerModel(AbstractServerModel):
     get_client = MagicMock()
     is_client_registered = MagicMock()
     register_client = MagicMock()
-    update_client_public_key = MagicMock()
+    update_client_keys = MagicMock()
+    store_file = MagicMock()
+    get_client_aes_key = MagicMock()
 
 
 class MockEncryptionUtils(AbstractEncryptionUtils):
     get_aes_key = MagicMock(return_value=b"1234567890123456")
     rsa_encrypt = MagicMock(return_value=b"1"*128)
+    aes_decrypt = MagicMock(return_value=b"thecontent\nmorecontent")
 
 
 def pack_header(header: ClientMessageHeader) -> bytes:
@@ -56,7 +62,7 @@ class ServerTest(unittest.TestCase):
         self.recv = cast(MagicMock, self.client_connection.recv)
         self.send = cast(MagicMock, self.client_connection.send)
         self.server = Server(1337, MockConnectionInterface(),
-                             self.model, self.encryption)
+                             self.model, self.encryption, Path("/tmp"))
         self.incoming_connection = IncomingConnection(self.client_connection,
                                                       Address(IPv4Address("1.2.3.4"), 1234))
 
@@ -116,8 +122,35 @@ class ServerTest(unittest.TestCase):
         self.send.assert_called_once_with(AESKeyMessage(self.server.SERVER_VERSION,
                                                         message.header.client_id,
                                                         b"1"*128).pack())
-        cast(MagicMock, self.model.update_client_public_key).assert_called_once_with(message.header.client_id,
-                                                                                     message.payload.public_key)
+        cast(MagicMock, self.model.update_client_keys).assert_called_once_with(message.header.client_id,
+                                                                               message.payload.public_key,
+                                                                               ANY)
+
+    @staticmethod
+    def get_upload_file_message() -> ClientMessageWithHeader:
+        client_uuid = uuid.uuid4()
+        header = ClientMessageHeader(client_uuid, 3,
+                                     ClientMessageCode.UPLOAD_FILE, 255)
+        payload = UploadFileMessage(
+            client_uuid, "bestfilename", b"thecontent\nmorecontent")
+        return ClientMessageWithHeader(header, payload)
+
+    def test_handle_upload_file(self):
+        message = self.get_upload_file_message()
+        assert isinstance(message.payload,
+                          UploadFileMessage)  # for pylance
+
+        self.server.handle_upload_file_message(
+            self.incoming_connection.connection, message)
+
+        self.send.assert_called_once_with(UploadFileSuccessfulMessage(self.server.SERVER_VERSION,
+                                                                      message.header.client_id,
+                                                                      len(b"thecontent\nmorecontent"),
+                                                                      "bestfilename",
+                                                                      crc32(b"thecontent\nmorecontent")).pack())
+        cast(MagicMock, self.model.store_file).assert_called_once_with(message.header.client_id,
+                                                                       "bestfilename",
+                                                                       ANY)
 
         # def test_handle_client_connection(self):
         #     client_uuid = uuid.uuid4()
