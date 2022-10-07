@@ -52,7 +52,7 @@ class AbstractServerModel(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def is_client_registered(self, client_uuid: UUID) -> bool:
+    def is_client_registered(self, client_name: str) -> bool:
         raise NotImplementedError
 
     @abstractmethod
@@ -79,6 +79,7 @@ class ServerModel(AbstractServerModel):
 
     def __init__(self, database_path: Path = Path("server.db")) -> None:
         # Allow for multi threaded reading - note we still keep writing serial
+        database_path.unlink()  # TODO: CHANGE THIS
         self.conn = sqlite3.connect(database_path, check_same_thread=False)
         self.conn.text_factory = bytes
         self.write_lock = threading.Lock()
@@ -86,7 +87,7 @@ class ServerModel(AbstractServerModel):
 
     def execute_write_query(self, query: str, *args: Tuple[Any, ...]) -> None:
         with self.write_lock:
-            self.conn.execute(query, args)
+            self.conn.execute(query, *args)
             self.conn.commit()
 
     def create_tables_if_needed(self):
@@ -117,16 +118,10 @@ class ServerModel(AbstractServerModel):
         query = f"INSERT INTO {self.CLIENTS_TABLE} VALUES(?, ?, ?, ?, ?)"
         self.execute_write_query(query, client.to_sql_row())
 
-    # def update_client(self, client: Client):
-    #     query = f"UPDATE {self.CLIENTS_TABLE} WHERE ID = ? VALUES(?, ?, ?, ?, ?)"
-    #     with self.write_lock:
-    #         self.conn.execute(query, (client.uuid.bytes, *client.get_values()))
-    #         self.conn.commit()
-
-    def is_client_registered(self, client_uuid: UUID) -> bool:
+    def is_client_registered(self, client_name: str) -> bool:
         # TODO: IS THIS CORRECT? They said to check the name, but then what is the point of the client uuid
-        query = f"SELECT * FROM {self.CLIENTS_TABLE} where ID = ?"
-        cursor = self.conn.execute(query, client_uuid.bytes)
+        query = f"SELECT * FROM {self.CLIENTS_TABLE} where Name = ?"
+        cursor = self.conn.execute(query, (client_name, ))
         if cursor.fetchall():
             return True
         return False

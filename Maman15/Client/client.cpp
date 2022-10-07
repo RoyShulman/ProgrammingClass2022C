@@ -29,7 +29,8 @@ void Client::run() {
 void Client::send_registration_request() {
     BOOST_LOG_TRIVIAL(info) << "Sending registration request";
     buuid::string_generator gen;
-    buuid::uuid default_uuid{gen("64f3f63985f04beb81a0e43321880182")};  // TODO: is this correct?
+    // The initial uuid should be 0. When we register the server sends us the new uuid
+    buuid::uuid default_uuid{gen("00000000000000000000000000000000")};
     protocol::RegistrationRequestMessage registration_request{client_version_,
                                                               default_uuid,
                                                               transfer_info_.get_client_name()};

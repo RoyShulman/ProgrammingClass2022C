@@ -1,6 +1,7 @@
+import uuid
 import logging
-from pathlib import Path
 import threading
+from pathlib import Path
 from datetime import datetime
 from ipaddress import IPv4Address
 from backup_server.connection_interface import AbstractConnectionInterface, Address, IncomingConnection
@@ -68,7 +69,8 @@ class Server:
         while True:
             incoming_connection = self.connection.accept()
             threading.Thread(target=self.handle_client_connection,
-                             args=(incoming_connection, ))
+                             args=(incoming_connection, ),
+                             name=str(incoming_connection.addr)).start()
 
     def handle_client_connection(self, incoming_connection: IncomingConnection) -> None:
         """
@@ -167,22 +169,22 @@ class Server:
         if not isinstance(registration_message.payload, ClientRegistrationRequest):
             raise WrongMessageReceived(registration_message)
 
-        client_uuid = registration_message.header.client_id
-        if self.model.is_client_registered(client_uuid):
-            self.logger.error(f"Client: {client_uuid} is already registered")
+        client_name = registration_message.payload.name
+        if self.model.is_client_registered(client_name):
+            self.logger.error(f"Client: {client_name} is already registered")
             # TODO: send error
-            raise ClientAlreadyRegisteredException(client_uuid)
+            raise ClientAlreadyRegisteredException(client_name)
 
         # We still don't know the public or aes key
-        # TODO: is this correct?
-        client = Client(client_uuid,
+        new_client_uuid = uuid.uuid4()
+        client = Client(new_client_uuid,
                         registration_message.payload.name,
                         b"",
                         datetime.now(),
                         b"")
         self.model.register_client(client)
         response = RegistrationSuccessfulMessage(self.SERVER_VERSION,
-                                                 registration_message.header.client_id)
+                                                 new_client_uuid)
         client_connection.send(response.pack())
 
     # def update_client_encryption_keys(self, client_connection: AbstractConnectionInterface, public_key_message: ClientMessageWithHeader):
