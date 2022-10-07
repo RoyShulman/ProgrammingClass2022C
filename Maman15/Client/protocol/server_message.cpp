@@ -11,13 +11,16 @@ WrongMessageVersion::WrongMessageVersion(ServerVersion expected, ServerVersion r
     : runtime_error("Expected message version: " + std::to_string(expected) + ", got " + std::to_string(read)) {}
 
 WrongMessageCode::WrongMessageCode(ServerMessageID expected, ServerMessageID read)
-    : runtime_error("Expected message code: " + std::to_string(static_cast<uint16_t>(expected)) + ", got " + std::to_string(static_cast<uint16_t>(read))) {}
+    : runtime_error("Expected message code: " + std::to_string(static_cast<uint16_t>(expected)) + ", got " + std::to_string(static_cast<uint16_t>(read))),
+      read_(read) {}
 
 FailedToParseMessage::FailedToParseMessage(const string& message, const string& error)
     : runtime_error("Failed to parse message: " + message + " With error: " + error) {}
 
 ServerMessage::ServerMessage(ServerVersion version, ServerMessageID code, buuid::uuid uuid)
     : version_(version), code_(code), uuid_(std::move(uuid)) {}
+
+RegistrationFailedException::RegistrationFailedException() {}
 
 ServerMessage ServerMessage::parse_header_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
                                                                 ServerMessageID expected_code, ServerVersion expected_version) {
@@ -53,6 +56,11 @@ RegistrationSuccessfulMessage RegistrationSuccessfulMessage::parse_from_incoming
                                                                 ServerMessageID::REGISTRATION_SUCCESSFUL,
                                                                 expected_version)};
         return {header.get_version(), header.get_uuid()};
+    } catch (const WrongMessageCode& e) {
+        if (e.get_read() == ServerMessageID::REGISTRATION_FAILED) {
+            throw RegistrationFailedException();
+        }
+        throw FailedToParseMessage("RegistrationSuccessfulMessage failed with unexpected message code: ", e.what());
     } catch (const exception& e) {
         throw FailedToParseMessage("RegistrationSuccessfulMessage", e.what());
     }

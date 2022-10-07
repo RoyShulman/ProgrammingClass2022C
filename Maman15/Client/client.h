@@ -21,7 +21,7 @@ public:
     void run();
 
 private:
-    void send_registration_request();
+    bool send_registration_request();
 
     UserInfo user_info_;
     TransferInfo transfer_info_;

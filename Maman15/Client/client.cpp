@@ -25,11 +25,13 @@ void Client::run() {
     connection_.connect();
 
     if (!user_info_.does_file_exist()) {
-        send_registration_request();
+        if (!send_registration_request()) {
+            return;
+        }
     }
 }
 
-void Client::send_registration_request() {
+bool Client::send_registration_request() {
     BOOST_LOG_TRIVIAL(info) << "Sending registration request";
     buuid::string_generator gen;
     // The initial uuid should be 0. When we register the server sends us the new uuid
@@ -38,10 +40,15 @@ void Client::send_registration_request() {
                                                               default_uuid,
                                                               transfer_info_.get_client_name()};
     connection_.write(registration_request.pack());
-    BOOST_LOG_TRIVIAL(info) << server_version_;
-    protocol::RegistrationSuccessfulMessage response{protocol::RegistrationSuccessfulMessage::parse_from_incoming_message(reader_,
-                                                                                                                          server_version_)};
-    BOOST_LOG_TRIVIAL(info) << "Successful registration. Using new uuid: " << buuid::to_string(response.get_uuid());
+    try {
+        protocol::RegistrationSuccessfulMessage response{protocol::RegistrationSuccessfulMessage::parse_from_incoming_message(reader_,
+                                                                                                                              server_version_)};
+        BOOST_LOG_TRIVIAL(info) << "Successful registration. Using new uuid: " << buuid::to_string(response.get_uuid());
+    } catch (const protocol::RegistrationFailedException& e) {
+        BOOST_LOG_TRIVIAL(error) << "Registration failed";
+        return false;
+    }
+    return true;
 }
 
 }  // namespace client

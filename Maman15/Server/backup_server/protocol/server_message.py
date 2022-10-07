@@ -6,6 +6,7 @@ from uuid import UUID
 
 class ServerMessageCode(Enum):
     REGISTRATION_SUCCESSFUL = 2100
+    REGISTRATION_FAILED = 2101
     AES_KEY = 2102
     UPLOAD_FILE_SUCCESSFUL = 2103
     SUCCESS_RESPONSE = 2104
@@ -46,6 +47,18 @@ class RegistrationSuccessfulMessage(ServerMessage):
     @property
     def PAYLOAD_FMT(self) -> str:
         return "<16s"
+
+
+class RegistrationFailedMessage(ServerMessage):
+    def __init__(self, server_version: int) -> None:
+        super().__init__(server_version, ServerMessageCode.REGISTRATION_FAILED)
+
+    def pack(self) -> bytearray:
+        return super().pack()
+
+    @property
+    def PAYLOAD_FMT(self) -> str:
+        return ""
 
 
 class AESKeyMessage(ServerMessage):

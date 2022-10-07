@@ -1,6 +1,7 @@
 #pragma once
 #include <boost/uuid/uuid.hpp>
 #include <cstdint>
+#include <exception>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -9,6 +10,7 @@
 #include "../util/name_string.h"
 
 namespace buuid = boost::uuids;
+using std::exception;
 using std::runtime_error;
 using std::shared_ptr;
 using std::string;
@@ -20,6 +22,7 @@ typedef uint8_t ServerVersion;
 
 enum class ServerMessageID : uint16_t {
     REGISTRATION_SUCCESSFUL = 2100,
+    REGISTRATION_FAILED = 2101,
     AES_KEY = 2102,
     UPLOAD_FILE_SUCCESSFUL = 2103,
     SUCCESS_RESPONSE = 2104,  // TODO: what about this??
@@ -33,11 +36,21 @@ public:
 class WrongMessageCode : public runtime_error {
 public:
     WrongMessageCode(ServerMessageID expected, ServerMessageID read);
+
+    ServerMessageID get_read() const { return read_; };
+
+private:
+    ServerMessageID read_;
 };
 
 class FailedToParseMessage : public runtime_error {
 public:
     FailedToParseMessage(const string& message, const string& error);
+};
+
+class RegistrationFailedException : public exception {
+public:
+    RegistrationFailedException();
 };
 
 /**

@@ -4,6 +4,7 @@ import threading
 from pathlib import Path
 from datetime import datetime
 from ipaddress import IPv4Address
+from contextlib import closing
 from backup_server.connection_interface import AbstractConnectionInterface, Address, IncomingConnection
 from backup_server.crc32 import crc32
 from backup_server.protocol.client_message import (
@@ -19,6 +20,7 @@ from backup_server.protocol.client_message import (
     UploadFileMessage,
 )
 from backup_server.protocol.server_message import (
+    RegistrationFailedMessage,
     RegistrationSuccessfulMessage,
     AESKeyMessage,
     UploadFileSuccessfulMessage,
@@ -34,6 +36,10 @@ class ClientAlreadyRegisteredException(Exception):
 
 
 class WrongMessageReceived(Exception):
+    pass
+
+
+class FailedToRegisterClient(Exception):
     pass
 
 
@@ -83,39 +89,43 @@ class Server:
             - A checksum verification message
         """
         self.logger.info(f"New connection from {incoming_connection.addr}")
-        message_handler = ClientConnectionMessageReader(
-            incoming_connection.connection)
-        message = message_handler.read_message()
-        was_registration = self.handle_possible_registration_request(incoming_connection.connection,
-                                                                     message)
-        if was_registration:
-            # If it was a registration message, we must wait for the second public key message
+        # We want to close the connection whenever we exit this function no matter the cause
+        with closing(incoming_connection.connection) as client_connection:
+            message_handler = ClientConnectionMessageReader(
+                incoming_connection.connection)
             message = message_handler.read_message()
-        self.handle_public_key_message(incoming_connection.connection, message)
+            try:
+                was_registration = self.handle_possible_registration_request(client_connection,
+                                                                             message)
+                if was_registration:
+                    # If it was a registration message, we must wait for the second public key message
+                    message = message_handler.read_message()
+            except FailedToRegisterClient:
+                self.logger.error("Registering client failed")
+                return
+            self.handle_public_key_message(client_connection, message)
 
-        message = message_handler.read_message()
-        self.handle_upload_file_message(incoming_connection.connection,
-                                        message)
-        # The upload file message can be sent again, or a checksum ok, or final checksum incorrect
-        self.handle_post_file_upload(message_handler, incoming_connection)
+            message = message_handler.read_message()
+            self.handle_upload_file_message(client_connection,
+                                            message)
+            # The upload file message can be sent again, or a checksum ok, or final checksum incorrect
+            self.handle_post_file_upload(client_connection, message_handler)
 
-    def handle_post_file_upload(self, message_handler: ClientConnectionMessageReader, incoming_connection: IncomingConnection):
+    def handle_post_file_upload(self, client_connection: AbstractConnectionInterface, message_handler: ClientConnectionMessageReader):
         message = message_handler.read_message()
         while isinstance(message.payload, FileCRCIncorrectWillRetryMessage):
             message = message_handler.read_message()
             self.handle_upload_file_message(
-                incoming_connection.connection, message)
+                client_connection, message)
             message = message_handler.read_message()
         # Client either accepted our checksum, or gave up
         if isinstance(message.payload, FileCRCIncorrectGivingUpMessage):
             self.logger.error(f"{message.header.client_id} Gave up")
         elif isinstance(message.payload, FileCRCOKMessage):
-            incoming_connection.connection.send(
+            client_connection.send(
                 SuccessResponseMessage(self.SERVER_VERSION).pack())
         else:
             raise WrongMessageReceived(message)
-        self.logger.info(f"Closing connection from {incoming_connection.addr}")
-        incoming_connection.connection.close()
 
     def handle_upload_file_message(self, client_connection: AbstractConnectionInterface,
                                    message: ClientMessageWithHeader):
@@ -169,23 +179,30 @@ class Server:
         if not isinstance(registration_message.payload, ClientRegistrationRequest):
             raise WrongMessageReceived(registration_message)
 
-        client_name = registration_message.payload.name
-        if self.model.is_client_registered(client_name):
-            self.logger.error(f"Client: {client_name} is already registered")
-            # TODO: send error
-            raise ClientAlreadyRegisteredException(client_name)
+        try:
+            client_name = registration_message.payload.name
+            if self.model.is_client_registered(client_name):
+                self.logger.error(
+                    f"Client: {client_name} is already registered")
+                # TODO: send error
+                raise ClientAlreadyRegisteredException(client_name)
 
-        # We still don't know the public or aes key
-        new_client_uuid = uuid.uuid4()
-        client = Client(new_client_uuid,
-                        registration_message.payload.name,
-                        b"",
-                        datetime.now(),
-                        b"")
-        self.model.register_client(client)
-        response = RegistrationSuccessfulMessage(self.SERVER_VERSION,
-                                                 new_client_uuid)
-        client_connection.send(response.pack())
+            # We still don't know the public or aes key
+            new_client_uuid = uuid.uuid4()
+            client = Client(new_client_uuid,
+                            registration_message.payload.name,
+                            b"",
+                            datetime.now(),
+                            b"")
+            self.model.register_client(client)
+            response = RegistrationSuccessfulMessage(self.SERVER_VERSION,
+                                                     new_client_uuid)
+            client_connection.send(response.pack())
+        except Exception as e:
+            self.logger.exception(f"Failed to register client: {str(e)}")
+            response = RegistrationFailedMessage(self.SERVER_VERSION)
+            client_connection.send(response.pack())
+            raise FailedToRegisterClient()
 
     # def update_client_encryption_keys(self, client_connection: AbstractConnectionInterface, public_key_message: ClientMessageWithHeader):
 
