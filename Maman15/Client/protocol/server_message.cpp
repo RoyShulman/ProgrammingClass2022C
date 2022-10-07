@@ -35,8 +35,8 @@ ServerMessage ServerMessage::parse_header_from_incoming_message(shared_ptr<Abstr
         throw WrongMessageCode{expected_code, code};
     }
 
-    buuid::string_generator gen;
-    buuid::uuid uuid{gen(message->read_bytes(buuid::uuid::static_size()))};
+    buuid::uuid uuid;
+    memcpy(uuid.data, message->read_bytes(buuid::uuid::static_size()).data(), buuid::uuid::static_size());
     return {version, code, uuid};
 }
 

@@ -18,6 +18,7 @@ public:
     void connect();
 
     void write(const string& buffer);
+    string read(size_t size);
 
 private:
     unique_ptr<basio::io_context> io_context_;

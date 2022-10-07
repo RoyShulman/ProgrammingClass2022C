@@ -28,6 +28,7 @@ private:
     ConnectionManager connection_;
     protocol::ClientVersion client_version_;
     protocol::ServerVersion server_version_;
+    shared_ptr<AbstractIncomingMessageReader> reader_;
 };
 
 }  // namespace client

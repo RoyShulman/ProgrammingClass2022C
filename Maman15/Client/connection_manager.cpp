@@ -16,4 +16,11 @@ void ConnectionManager::write(const string& buffer) {
     basio::write(socket_, basio::buffer(buffer));
 }
 
+string ConnectionManager::read(size_t size) {
+    string buffer;
+    buffer.resize(size);
+    basio::read(socket_, basio::buffer(buffer));
+    return buffer;
+}
+
 }  // namespace client

@@ -28,7 +28,8 @@ TEST(ServerMessageTest, registration_successful_message) {
     EXPECT_CALL(*mock_reader, read_uint16())
         .WillOnce(Return(2100));
     EXPECT_CALL(*mock_reader, read_bytes(16))
-        .WillOnce(Return(string{"bb4f4460-3c25-11ed-b2bb-f2d20dd24480"}));
+        .WillOnce(Return(string{'\xbb', '\x4f', '\x44', '\x60', '\x3c', '\x25', '\x11', '\xed', '\xb2', '\xbb',
+                                '\xf2', '\xd2', '\x0d', '\xd2', '\x44', '\x80'}));
 
     shared_ptr<MockIncomingMessageReader> reader{mock_reader};
     RegistrationSuccessfulMessage message{RegistrationSuccessfulMessage::parse_from_incoming_message(reader, 3)};
@@ -74,7 +75,8 @@ TEST(ServerMessageTest, AES_key_message) {
     EXPECT_CALL(*mock_reader, read_uint16())
         .WillOnce(Return(2102));
     EXPECT_CALL(*mock_reader, read_bytes(16))
-        .WillOnce(Return(string{"bb4f4460-3c25-11ed-b2bb-f2d20dd24480"}))
+        .WillOnce(Return(string{'\xbb', '\x4f', '\x44', '\x60', '\x3c', '\x25', '\x11', '\xed', '\xb2', '\xbb',
+                                '\xf2', '\xd2', '\x0d', '\xd2', '\x44', '\x80'}))
         .WillOnce(Return(aes_key));
 
     shared_ptr<MockIncomingMessageReader> reader{mock_reader};
@@ -92,7 +94,8 @@ TEST(ServerMessageTest, upload_file_successful_message) {
     EXPECT_CALL(*mock_reader, read_uint16())
         .WillOnce(Return(2103));
     EXPECT_CALL(*mock_reader, read_bytes(16))
-        .WillOnce(Return(string{"bb4f4460-3c25-11ed-b2bb-f2d20dd24480"}));
+        .WillOnce(Return(string{'\xbb', '\x4f', '\x44', '\x60', '\x3c', '\x25', '\x11', '\xed', '\xb2', '\xbb',
+                                '\xf2', '\xd2', '\x0d', '\xd2', '\x44', '\x80'}));
     EXPECT_CALL(*mock_reader, read_bytes(255))
         .WillOnce(Return(string{filename.get_name().data()}));
 
@@ -113,7 +116,8 @@ TEST(ServerMessageTest, success_message) {
     EXPECT_CALL(*mock_reader, read_uint16())
         .WillOnce(Return(2104));
     EXPECT_CALL(*mock_reader, read_bytes(16))
-        .WillOnce(Return(string{"bb4f4460-3c25-11ed-b2bb-f2d20dd24480"}));
+        .WillOnce(Return(string{'\xbb', '\x4f', '\x44', '\x60', '\x3c', '\x25', '\x11', '\xed', '\xb2', '\xbb',
+                                '\xf2', '\xd2', '\x0d', '\xd2', '\x44', '\x80'}));
 
     shared_ptr<MockIncomingMessageReader> reader{mock_reader};
     SuccessResponseMessage message{SuccessResponseMessage::parse_from_incoming_message(reader, 3)};

@@ -36,6 +36,10 @@ cc_library(
         "//Maman15/Client/protocol:__pkg__",
         "//Maman15/Client/test:__pkg__",
     ],
+    deps = [
+        ":connection_manager",
+        "@boost//:asio",
+    ],
 )
 
 cc_library(
@@ -46,7 +50,6 @@ cc_library(
         "//Maman15/Client/test:__pkg__",
     ],
     deps = [
-        ":transfer_info",
         "@boost//:asio",
     ],
 )
@@ -61,6 +64,7 @@ cc_library(
     deps = [
         ":connection_manager",
         ":incoming_message_reader",
+        ":transfer_info",
         ":user_info",
         "//Maman15/Client/protocol",
         "@boost//:log",

@@ -13,7 +13,7 @@ py_server_test(
     srcs = [
         "test_port_info.py",
     ],
-    deps = ["//Maman15/Server/server:port_info"],
+    deps = ["//Maman15/Server/backup_server:port_info"],
 )
 
 py_server_test(
@@ -21,7 +21,7 @@ py_server_test(
     srcs = [
         "test_crc32.py",
     ],
-    deps = ["//Maman15/Server/server:crc32"],
+    deps = ["//Maman15/Server/backup_server:crc32"],
 )
 
 py_server_test(

@@ -3,6 +3,8 @@
 
 #include "client.h"
 
+using std::make_shared;
+
 int main() {
     try {
         client::UserInfo user_info;
