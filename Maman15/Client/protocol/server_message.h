@@ -58,22 +58,23 @@ public:
  */
 class ServerMessage {
 protected:
-    ServerMessage(ServerVersion version, ServerMessageID code, buuid::uuid uuid);
+    ServerMessage(ServerVersion version, ServerMessageID code, buuid::uuid uuid, uint32_t payload_size);
+    static ServerMessage parse_header_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
+                                                            ServerMessageID expected_code, ServerVersion expected_version);
 
 public:
     virtual ~ServerMessage() = default;
 
-    static ServerMessage parse_header_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
-                                                            ServerMessageID expected_code, ServerVersion expected_version);
-
     ServerVersion get_version() const { return version_; };
     const buuid::uuid& get_uuid() const { return uuid_; };
     ServerMessageID get_code() const { return code_; };
+    uint32_t get_payload_size() const { return payload_size_; };
 
 private:
     ServerVersion version_;
     ServerMessageID code_;
     buuid::uuid uuid_;
+    uint32_t payload_size_;
 };
 
 // All the following messages can parse from an incoming message.
@@ -81,7 +82,7 @@ private:
 // parse_from_incoming_message isn't virtual since we want to return the concrete type of the message
 class RegistrationSuccessfulMessage : public ServerMessage {
 public:
-    RegistrationSuccessfulMessage(ServerVersion version, buuid::uuid uuid);
+    RegistrationSuccessfulMessage(ServerVersion version, buuid::uuid uuid, uint32_t payload_size);
 
     static RegistrationSuccessfulMessage parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
                                                                      ServerVersion expected_version);
@@ -89,7 +90,7 @@ public:
 
 class AESKeyMessage : public ServerMessage {
 public:
-    AESKeyMessage(ServerVersion version, buuid::uuid uuid, string aes_key);
+    AESKeyMessage(ServerVersion version, buuid::uuid uuid, uint32_t payload_size, string aes_key);
 
     static AESKeyMessage parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
                                                      ServerVersion expected_version);
@@ -103,7 +104,7 @@ private:
 
 class UploadFileSuccessfulMessage : public ServerMessage {
 public:
-    UploadFileSuccessfulMessage(ServerVersion version, buuid::uuid uuid, util::NameString filename, uint32_t checksum);
+    UploadFileSuccessfulMessage(ServerVersion version, buuid::uuid uuid, uint32_t payload_size, util::NameString filename, uint32_t checksum);
 
     static UploadFileSuccessfulMessage parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
                                                                    ServerVersion expected_version);
@@ -118,7 +119,7 @@ private:
 
 class SuccessResponseMessage : public ServerMessage {
 public:
-    SuccessResponseMessage(ServerVersion version, buuid::uuid uuid);
+    SuccessResponseMessage(ServerVersion version, buuid::uuid uuid, uint32_t payload_size);
 
     static SuccessResponseMessage parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
                                                               ServerVersion expected_version);

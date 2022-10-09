@@ -56,7 +56,7 @@ UploadFileMessage::UploadFileMessage(ClientVersion version, buuid::uuid uuid, ut
 string UploadFileMessage::pack() const {
     string message;
     util::LittleEndianStringStream packing_stream{message};
-    packing_stream << pack_header() << static_cast<uint32_t>(encrypted_file_content_.size()) << file_name_ << encrypted_file_content_;
+    packing_stream << pack_header() << get_uuid() << static_cast<uint32_t>(encrypted_file_content_.size()) << file_name_ << encrypted_file_content_;
     return message;
 }
 

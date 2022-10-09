@@ -66,7 +66,9 @@ cc_library(
         ":incoming_message_reader",
         ":transfer_info",
         ":user_info",
+        "//Maman15/Client/encryption:aes_wrapper",
         "//Maman15/Client/protocol",
+        "//Maman15/Client/util:crc32",
         "@boost//:log",
     ],
 )

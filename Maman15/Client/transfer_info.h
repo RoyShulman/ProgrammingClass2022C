@@ -37,6 +37,7 @@ public:
 
     const string& get_client_name() const { return client_name_; };
     const bip::tcp::endpoint& get_server() const { return server_; };
+    const bfs::path& get_transfer_file() const { return transfer_file_; };
 };
 
 }  // namespace client

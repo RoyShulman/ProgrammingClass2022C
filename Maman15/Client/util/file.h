@@ -41,8 +41,9 @@ public:
  */
 class File {
 public:
-    explicit File(bfs::path path);
+    explicit File(bfs::path path, bool is_binary = false);
     vector<string> read_lines();
+    string read();
 
 private:
     bfs::path path_;

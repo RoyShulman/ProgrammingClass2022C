@@ -36,6 +36,8 @@ protected:
 
     virtual uint32_t get_payload_size() const = 0;
 
+    const buuid::uuid& get_uuid() const { return uuid_; };
+
 private:
     ClientVersion version_;
     ClientMessageID code_;

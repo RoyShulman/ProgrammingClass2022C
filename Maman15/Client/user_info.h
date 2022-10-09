@@ -42,6 +42,10 @@ public:
     void set_uuid(buuid::uuid uuid) { uuid_ = std::move(uuid); };
     void set_key(encryption::PrivateKeyWrapper key) { key_ = std::move(key); };
 
+    const string& get_name() const { return name_; };
+    const buuid::uuid& get_uuid() const { return uuid_; };
+    const encryption::PrivateKeyWrapper& get_key() const { return key_; };
+
     bool operator==(const UserInfo& rhs) const;
     bool operator!=(const UserInfo& rhs) const;
     friend std::ostream& operator<<(std::ostream& stream, const UserInfo& info);

@@ -187,6 +187,10 @@ class FileCRCIncorrectGivingUpMessage(ClientMessage):
         return ""
 
 
+class FailedToParseMessage(Exception):
+    pass
+
+
 @dataclass(frozen=True)
 class ClientMessageWithHeader:
     header: ClientMessageHeader
@@ -206,6 +210,9 @@ class ClientMessageParser:
     @staticmethod
     def parse_message(reader: ClientMessageReader) -> 'ClientMessageWithHeader':
         header = ClientMessageHeader.unpack(reader)
-        payload = ClientMessageParser.MESSAGE_CODE_TO_CLS[header.code].unpack(
-            reader)
-        return ClientMessageWithHeader(header, payload)
+        try:
+            payload = ClientMessageParser.MESSAGE_CODE_TO_CLS[header.code].unpack(
+                reader)
+            return ClientMessageWithHeader(header, payload)
+        except Exception as e:
+            raise FailedToParseMessage(header.code) from e
