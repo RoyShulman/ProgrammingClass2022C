@@ -44,12 +44,22 @@ class FailedToRegisterClient(Exception):
 
 
 class ClientConnectionMessageReader:
-    def __init__(self, client_connection: AbstractConnectionInterface) -> None:
+    """
+    Helper class to read messages from an AbstractConnectionInterface.
+    """
+
+    def __init__(self, client_connection: AbstractConnectionInterface, model: AbstractServerModel) -> None:
         self.client_connection = client_connection
+        self.model = model
         self.reader = ClientMessageReader(self.client_connection)
 
     def read_message(self) -> ClientMessageWithHeader:
-        return ClientMessageParser.parse_message(self.reader)
+        """
+        Read a message and update the last seen time of the client
+        """
+        message = ClientMessageParser.parse_message(self.reader)
+        self.model.update_last_seen_time(message.header.client_id)
+        return message
 
 
 class Server:
@@ -92,7 +102,7 @@ class Server:
         # We want to close the connection whenever we exit this function no matter the cause
         with closing(incoming_connection.connection) as client_connection:
             message_handler = ClientConnectionMessageReader(
-                incoming_connection.connection)
+                incoming_connection.connection, self.model)
             message = message_handler.read_message()
             try:
                 was_registration = self.handle_possible_registration_request(client_connection,
@@ -224,7 +234,6 @@ class Server:
             if self.model.is_client_registered(client_name):
                 self.logger.error(
                     f"Client: {client_name} is already registered")
-                # TODO: send error
                 raise ClientAlreadyRegisteredException(client_name)
 
             # We still don't know the public or aes key
@@ -244,8 +253,6 @@ class Server:
             response = RegistrationFailedMessage(self.SERVER_VERSION)
             client_connection.send(response.pack())
             raise FailedToRegisterClient()
-
-    # def update_client_encryption_keys(self, client_connection: AbstractConnectionInterface, public_key_message: ClientMessageWithHeader):
 
     def close(self):
         self.connection.close()

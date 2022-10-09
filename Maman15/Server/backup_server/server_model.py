@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import datetime
 from uuid import UUID
 from dataclasses import dataclass
-from typing import Any, Tuple, List
+from typing import Any, Tuple, List, Optional
 from abc import ABC, abstractmethod
 import uuid
 
@@ -87,7 +87,10 @@ class AbstractServerModel(ABC):
     def get_file_path(self, client_uuid: UUID, filename: str) -> Path:
         raise NotImplementedError
 
-# TODO: update last message time
+    @abstractmethod
+    def update_last_seen_time(self, client_uuid: UUID, last_seen: Optional[datetime] = None) -> None:
+        raise NotImplementedError
+
 # TODO: should filename be bytes? so we keep the null terminator
 
 
@@ -98,7 +101,6 @@ class ServerModel(AbstractServerModel):
 
     def __init__(self, database_path: Path = Path("server.db")) -> None:
         # Allow for multi threaded reading - note we still keep writing serial
-        database_path.unlink()  # TODO: CHANGE THIS
         self.conn = sqlite3.connect(database_path, check_same_thread=False)
         self.conn.text_factory = bytes
         self.write_lock = threading.Lock()
@@ -190,3 +192,9 @@ class ServerModel(AbstractServerModel):
         query = f'SELECT PathName FROM {self.FILES_TABLE} WHERE ID = ? AND FileName = ?'
         cursor = self.conn.execute(query, (client_uuid.bytes, filename))
         return Path(cursor.fetchall()[0][0].decode())
+
+    def update_last_seen_time(self, client_uuid: UUID, last_seen: Optional[datetime] = None) -> None:
+        if not last_seen:
+            last_seen = datetime.now()
+        query = f'UPDATE {self.CLIENTS_TABLE} SET LastSeen = ? WHERE ID = ?'
+        self.execute_write_query(query, (last_seen, client_uuid.bytes))

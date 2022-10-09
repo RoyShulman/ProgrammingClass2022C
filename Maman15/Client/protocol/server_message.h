@@ -25,7 +25,7 @@ enum class ServerMessageID : uint16_t {
     REGISTRATION_FAILED = 2101,
     AES_KEY = 2102,
     UPLOAD_FILE_SUCCESSFUL = 2103,
-    SUCCESS_RESPONSE = 2104,  // TODO: what about this??
+    SUCCESS_RESPONSE = 2104,
 };
 
 class WrongMessageVersion : public runtime_error {
