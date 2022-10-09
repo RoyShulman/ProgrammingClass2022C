@@ -30,6 +30,8 @@ TEST(ServerMessageTest, registration_successful_message) {
     EXPECT_CALL(*mock_reader, read_bytes(16))
         .WillOnce(Return(string{'\xbb', '\x4f', '\x44', '\x60', '\x3c', '\x25', '\x11', '\xed', '\xb2', '\xbb',
                                 '\xf2', '\xd2', '\x0d', '\xd2', '\x44', '\x80'}));
+    EXPECT_CALL(*mock_reader, read_uint32())
+        .WillOnce(Return(16));
 
     shared_ptr<MockIncomingMessageReader> reader{mock_reader};
     RegistrationSuccessfulMessage message{RegistrationSuccessfulMessage::parse_from_incoming_message(reader, 3)};
@@ -57,7 +59,7 @@ TEST(ServerMessageTest, wrong_code) {
     EXPECT_CALL(*mock_reader, read_uint8())
         .WillOnce(Return(3));
     EXPECT_CALL(*mock_reader, read_uint16())
-        .WillOnce(Return(2101));
+        .WillOnce(Return(2103));
 
     shared_ptr<MockIncomingMessageReader> reader{mock_reader};
     ASSERT_THROW(
@@ -77,12 +79,15 @@ TEST(ServerMessageTest, AES_key_message) {
     EXPECT_CALL(*mock_reader, read_bytes(16))
         .WillOnce(Return(string{'\xbb', '\x4f', '\x44', '\x60', '\x3c', '\x25', '\x11', '\xed', '\xb2', '\xbb',
                                 '\xf2', '\xd2', '\x0d', '\xd2', '\x44', '\x80'}))
-        .WillOnce(Return(aes_key));
+        .WillOnce(Return(aes_key));  // We read 16 again since read_uint32 returns 16 + 16. Kind of confusing should probably change
+
+    EXPECT_CALL(*mock_reader, read_uint32())
+        .WillOnce(Return(16 + 16));
 
     shared_ptr<MockIncomingMessageReader> reader{mock_reader};
     AESKeyMessage message{AESKeyMessage::parse_from_incoming_message(reader, 3)};
 
-    ASSERT_EQ(message.get_aes_key(), aes_key);
+    ASSERT_EQ(message.get_encrypted_aes_key(), aes_key);
 }
 
 TEST(ServerMessageTest, upload_file_successful_message) {
@@ -100,6 +105,8 @@ TEST(ServerMessageTest, upload_file_successful_message) {
         .WillOnce(Return(string{filename.get_name().data()}));
 
     EXPECT_CALL(*mock_reader, read_uint32())
+        .WillOnce(Return(16 + 4 + 255 + 4))  //  payload_size
+        .WillOnce(Return(100))               // content_size
         .WillOnce(Return(checksum));
 
     shared_ptr<MockIncomingMessageReader> reader{mock_reader};
@@ -115,9 +122,8 @@ TEST(ServerMessageTest, success_message) {
         .WillOnce(Return(3));
     EXPECT_CALL(*mock_reader, read_uint16())
         .WillOnce(Return(2104));
-    EXPECT_CALL(*mock_reader, read_bytes(16))
-        .WillOnce(Return(string{'\xbb', '\x4f', '\x44', '\x60', '\x3c', '\x25', '\x11', '\xed', '\xb2', '\xbb',
-                                '\xf2', '\xd2', '\x0d', '\xd2', '\x44', '\x80'}));
+    EXPECT_CALL(*mock_reader, read_uint32())
+        .WillOnce(Return(0));
 
     shared_ptr<MockIncomingMessageReader> reader{mock_reader};
     SuccessResponseMessage message{SuccessResponseMessage::parse_from_incoming_message(reader, 3)};

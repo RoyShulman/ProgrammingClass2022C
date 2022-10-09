@@ -25,14 +25,6 @@ py_server_test(
 )
 
 py_server_test(
-    name = "test_server_model",
-    srcs = [
-        "test_server_model.py",
-    ],
-    deps = ["//Maman15/Server/backup_server:model"],
-)
-
-py_server_test(
     name = "test_client_message",
     srcs = [
         "test_client_message.py",

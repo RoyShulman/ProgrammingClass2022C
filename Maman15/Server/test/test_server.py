@@ -8,7 +8,7 @@ from ipaddress import IPv4Address
 from unittest.mock import MagicMock, ANY
 from typing import cast
 from ipaddress import IPv4Address
-from backup_server.server import Server, ClientAlreadyRegisteredException, WrongMessageReceived
+from backup_server.server import FailedToRegisterClient, Server, ClientAlreadyRegisteredException, WrongMessageReceived
 from backup_server.connection_interface import AbstractConnectionInterface, IncomingConnection, Address
 from backup_server.protocol.client_message import (
     ClientMessageCode,
@@ -41,6 +41,11 @@ class MockServerModel(AbstractServerModel):
     update_client_keys = MagicMock()
     store_file = MagicMock()
     get_client_aes_key = MagicMock()
+    remove_file = MagicMock()
+    set_file_verified = MagicMock()
+    get_file_path = MagicMock()
+    update_last_seen_time = MagicMock()
+    does_client_uuid_exist = MagicMock()
 
 
 class MockEncryptionUtils(AbstractEncryptionUtils):
@@ -81,9 +86,7 @@ class ServerTest(unittest.TestCase):
         self.server.register_client(self.incoming_connection.connection,
                                     message)
 
-        self.send.assert_called_once_with(RegistrationSuccessfulMessage(self.server.SERVER_VERSION,
-                                                                        client_uuid).pack())
-        cast(MagicMock, self.model.register_client).assert_called_once_with(Client(client_uuid,
+        cast(MagicMock, self.model.register_client).assert_called_once_with(Client(ANY,
                                                                                    "bestname", b"", ANY, b""))
 
     def test_registered_already_rgistered(self):
@@ -94,7 +97,7 @@ class ServerTest(unittest.TestCase):
         message = ClientMessageWithHeader(header, payload)
 
         cast(MagicMock, self.model.is_client_registered).side_effect = [True]
-        with self.assertRaises(ClientAlreadyRegisteredException):
+        with self.assertRaises(FailedToRegisterClient):
             self.server.register_client(self.incoming_connection.connection,
                                         message)
 
@@ -151,14 +154,6 @@ class ServerTest(unittest.TestCase):
         cast(MagicMock, self.model.store_file).assert_called_once_with(message.header.client_id,
                                                                        "bestfilename",
                                                                        ANY)
-
-        # def test_handle_client_connection(self):
-        #     client_uuid = uuid.uuid4()
-        #     self.recv.side_effect = [pack_header(ClientMessageHeader(client_uuid, 3, ClientMessageCode.REGISTRATION, 255)),
-        #                              struct.pack("<255s", b"bestname")]
-        #     self.server.handle_client_connection(self.incoming_connection)
-        #     self.send.assert_called_once_with(RegistrationSuccessfulMessage(self.server.SERVER_VERSION,
-        #                                                                     client_uuid).pack())
 
 
 if __name__ == "__main__":
