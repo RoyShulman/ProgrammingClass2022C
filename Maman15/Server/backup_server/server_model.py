@@ -68,8 +68,27 @@ class AbstractServerModel(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def remove_file(self, client_uuid: UUID, filename: str) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
     def get_client_aes_key(self, client_uuid: UUID) -> bytes:
         raise NotImplementedError
+
+    @abstractmethod
+    def does_client_uuid_exist(self, client_uuid: UUID) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_file_verified(self, client_uuid: UUID, filename: str) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_file_path(self, client_uuid: UUID, filename: str) -> Path:
+        raise NotImplementedError
+
+# TODO: update last message time
+# TODO: should filename be bytes? so we keep the null terminator
 
 
 class ServerModel(AbstractServerModel):
@@ -96,7 +115,7 @@ class ServerModel(AbstractServerModel):
             f"Name VARCHAR(127),"\
             f"PublicKey BINARY(160),"\
             f"LastSeen TIMESTAMP,"\
-            f"AESKey BINARY(256))"
+            f"AESKey BINARY(32))"
 
         # TODO: is the id supposed to be primary key?
         files_table = f"CREATE TABLE IF NOT EXISTS {self.FILES_TABLE}("\
@@ -119,7 +138,6 @@ class ServerModel(AbstractServerModel):
         self.execute_write_query(query, client.to_sql_row())
 
     def is_client_registered(self, client_name: str) -> bool:
-        # TODO: IS THIS CORRECT? They said to check the name, but then what is the point of the client uuid
         query = f"SELECT * FROM {self.CLIENTS_TABLE} where Name = ?"
         cursor = self.conn.execute(query, (client_name, ))
         if cursor.fetchall():
@@ -128,27 +146,47 @@ class ServerModel(AbstractServerModel):
 
     def get_client(self, client_uuid: UUID) -> Client:
         query = f'SELECT * FROM {self.CLIENTS_TABLE} WHERE ID = ?"'
-        cursor = self.conn.execute(query, client_uuid.bytes)
+        cursor = self.conn.execute(query, (client_uuid.bytes, ))
         found_clients = [Client.from_sql_row(*cursor.fetchall()[0])]
         if not found_clients:
             raise ClientWithSpecifiedUUIDNotFound(client_uuid)
         return found_clients[0]
 
     def update_client_keys(self, client_uuid: UUID, public_key: bytes, aes_key: bytes) -> None:
-        query = f'UPDATE {self.CLIENTS_TABLE} SET Publickey = ?, AESKey = ? WHERE ID = ?"'
+        query = f'UPDATE {self.CLIENTS_TABLE} SET Publickey = ?, AESKey = ? WHERE ID = ?'
         self.execute_write_query(query,
-                                 (public_key, aes_key, client_uuid.bytes))
+                                 ("public_key", aes_key, client_uuid.bytes))
 
     def store_file(self, client_uuid: UUID, filename: str, path: Path) -> None:
         query = f"INSERT INTO {self.FILES_TABLE} VALUES(?, ?, ?, ?)"
         # File are initially unverified
         self.execute_write_query(
-            query, (client_uuid, filename, str(path), False))
+            query, (client_uuid.bytes, filename, str(path), False))
+
+    def remove_file(self, client_uuid: UUID, filename: str) -> None:
+        query = f"DELETE FROM {self.FILES_TABLE} WHERE ID = ? AND FileName = ?"
+        self.execute_write_query(query, (client_uuid.bytes, filename))
 
     def get_client_aes_key(self, client_uuid: UUID) -> bytes:
         query = f'SELECT AESKey FROM {self.CLIENTS_TABLE} WHERE ID = ?'
-        cursor = self.conn.execute(query, client_uuid.bytes)
+        cursor = self.conn.execute(query, (client_uuid.bytes, ))
         found = cursor.fetchall()
         if not found:
             raise ClientDoesNotExist(client_uuid)
-        return found[0]
+        return found[0][0]
+
+    def does_client_uuid_exist(self, client_uuid: UUID) -> bool:
+        query = f"SELECT * FROM {self.CLIENTS_TABLE} where ID = ?"
+        cursor = self.conn.execute(query, (client_uuid.bytes, ))
+        if cursor.fetchall():
+            return True
+        return False
+
+    def set_file_verified(self, client_uuid: UUID, filename: str) -> None:
+        query = f'UPDATE {self.FILES_TABLE} SET Verified = 1 WHERE ID = ? AND FileName = ?'
+        self.execute_write_query(query, (client_uuid.bytes, filename))
+
+    def get_file_path(self, client_uuid: UUID, filename: str) -> Path:
+        query = f'SELECT PathName FROM {self.FILES_TABLE} WHERE ID = ? AND FileName = ?'
+        cursor = self.conn.execute(query, (client_uuid.bytes, filename))
+        return Path(cursor.fetchall()[0][0].decode())

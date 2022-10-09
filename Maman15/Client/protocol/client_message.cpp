@@ -61,31 +61,50 @@ string UploadFileMessage::pack() const {
 }
 
 uint32_t UploadFileMessage::get_payload_size() const {
-    return file_name_.get_name().size() + sizeof(uint32_t) + encrypted_file_content_.size();
+    return buuid::uuid::static_size() + file_name_.get_name().size() + sizeof(uint32_t) + encrypted_file_content_.size();
 }
 
-EmptyPayloadClientMessage::EmptyPayloadClientMessage(ClientVersion version, ClientMessageID code, buuid::uuid uuid)
-    : ClientMessage(version, code, std::move(uuid)) {}
+FileCRCOkMessage::FileCRCOkMessage(ClientVersion version, buuid::uuid uuid, util::NameString file_name)
+    : ClientMessage(version, ClientMessageID::FILE_CRC_OK, std::move(uuid)), file_name_{std::move(file_name)} {}
 
-string EmptyPayloadClientMessage::pack() const {
+string FileCRCOkMessage::pack() const {
     string message;
     util::LittleEndianStringStream packing_stream{message};
-    packing_stream << pack_header();
+    packing_stream << pack_header() << get_uuid() << file_name_;
     return message;
 }
 
-uint32_t EmptyPayloadClientMessage::get_payload_size() const {
-    return 0;
+uint32_t FileCRCOkMessage::get_payload_size() const {
+    return buuid::uuid::static_size() + file_name_.get_name().size();
 }
 
-FileCRCOkMessage::FileCRCOkMessage(ClientVersion version, buuid::uuid uuid)
-    : EmptyPayloadClientMessage(version, ClientMessageID::FILE_CRC_OK, std::move(uuid)) {}
+CRCIncorrectWillRetry::CRCIncorrectWillRetry(ClientVersion version, buuid::uuid uuid, util::NameString file_name)
+    : ClientMessage(version, ClientMessageID::CRC_INCORRECT_WILL_RETRY, std::move(uuid)), file_name_{std::move(file_name)} {}
 
-CRCIncorrectWillRetry::CRCIncorrectWillRetry(ClientVersion version, buuid::uuid uuid)
-    : EmptyPayloadClientMessage(version, ClientMessageID::CRC_INCORRECT_WILL_RETRY, std::move(uuid)) {}
+string CRCIncorrectWillRetry::pack() const {
+    string message;
+    util::LittleEndianStringStream packing_stream{message};
+    packing_stream << pack_header() << get_uuid() << file_name_;
+    return message;
+}
 
-CRCIncorrectGivingUp::CRCIncorrectGivingUp(ClientVersion version, buuid::uuid uuid)
-    : EmptyPayloadClientMessage(version, ClientMessageID::CRC_INCORRECT_GIVING_UP, std::move(uuid)) {}
+uint32_t CRCIncorrectWillRetry::get_payload_size() const {
+    return buuid::uuid::static_size() + file_name_.get_name().size();
+}
+
+CRCIncorrectGivingUp::CRCIncorrectGivingUp(ClientVersion version, buuid::uuid uuid, util::NameString file_name)
+    : ClientMessage(version, ClientMessageID::CRC_INCORRECT_GIVING_UP, std::move(uuid)), file_name_{std::move(file_name)} {}
+
+string CRCIncorrectGivingUp::pack() const {
+    string message;
+    util::LittleEndianStringStream packing_stream{message};
+    packing_stream << pack_header() << get_uuid() << file_name_;
+    return message;
+}
+
+uint32_t CRCIncorrectGivingUp::get_payload_size() const {
+    return buuid::uuid::static_size() + file_name_.get_name().size();
+}
 
 }  // namespace protocol
 }  // namespace client

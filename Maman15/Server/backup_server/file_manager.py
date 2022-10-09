@@ -20,3 +20,6 @@ class FileManager:
         with path.open("wb") as f:
             f.write(content)
         return path
+
+    def remove_file(self, path: Path):
+        path.unlink()

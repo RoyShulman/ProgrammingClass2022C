@@ -68,8 +68,8 @@ RegistrationSuccessfulMessage RegistrationSuccessfulMessage::parse_from_incoming
     }
 }
 
-AESKeyMessage::AESKeyMessage(ServerVersion version, buuid::uuid uuid, uint32_t payload_size, string aes_key)
-    : ServerMessage(version, ServerMessageID::AES_KEY, std::move(uuid), payload_size), aes_key_(std::move(aes_key)) {}
+AESKeyMessage::AESKeyMessage(ServerVersion version, buuid::uuid uuid, uint32_t payload_size, string encrypted_aes_key)
+    : ServerMessage(version, ServerMessageID::AES_KEY, std::move(uuid), payload_size), encrypted_aes_key_(std::move(encrypted_aes_key)) {}
 
 AESKeyMessage AESKeyMessage::parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
                                                          ServerVersion expected_version) {
@@ -80,15 +80,20 @@ AESKeyMessage AESKeyMessage::parse_from_incoming_message(shared_ptr<AbstractInco
         ServerMessage header{parse_header_from_incoming_message(message,
                                                                 ServerMessageID::AES_KEY,
                                                                 expected_version)};
-        string aes_key{message->read_bytes(AES_KEY_SIZE_)};
-        return {header.get_version(), header.get_uuid(), header.get_payload_size(), aes_key};
+        string encrypted_aes_key{message->read_bytes(header.get_payload_size() - buuid::uuid::static_size())};
+
+        return {header.get_version(), header.get_uuid(), header.get_payload_size(), encrypted_aes_key};
     } catch (const exception& e) {
         throw FailedToParseMessage("AESKeyMessage", e.what());
     }
 }
 
-UploadFileSuccessfulMessage::UploadFileSuccessfulMessage(ServerVersion version, buuid::uuid uuid, uint32_t payload_size, util::NameString filename, uint32_t checksum)
-    : ServerMessage(version, ServerMessageID::UPLOAD_FILE_SUCCESSFUL, std::move(uuid), payload_size), filename_(std::move(filename)), checksum_(checksum) {}
+UploadFileSuccessfulMessage::UploadFileSuccessfulMessage(ServerVersion version, buuid::uuid uuid, uint32_t payload_size,
+                                                         uint32_t content_size, util::NameString filename, uint32_t checksum)
+    : ServerMessage(version, ServerMessageID::UPLOAD_FILE_SUCCESSFUL, std::move(uuid), payload_size),
+      content_size_{content_size},
+      filename_(std::move(filename)),
+      checksum_(checksum) {}
 
 UploadFileSuccessfulMessage UploadFileSuccessfulMessage::parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
                                                                                      ServerVersion expected_version) {
@@ -99,9 +104,10 @@ UploadFileSuccessfulMessage UploadFileSuccessfulMessage::parse_from_incoming_mes
         ServerMessage header{parse_header_from_incoming_message(message,
                                                                 ServerMessageID::UPLOAD_FILE_SUCCESSFUL,
                                                                 expected_version)};
+        uint32_t content_size{message->read_uint32()};
         util::NameString filename{message->read_bytes(util::NameString::get_name_size())};
         uint32_t checksum{message->read_uint32()};
-        return {header.get_version(), header.get_uuid(), header.get_payload_size(), filename, checksum};
+        return {header.get_version(), header.get_uuid(), header.get_payload_size(), content_size, filename, checksum};
     } catch (const exception& e) {
         throw FailedToParseMessage("UploadFileSuccessful", e.what());
     }

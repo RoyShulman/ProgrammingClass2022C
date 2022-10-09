@@ -103,6 +103,13 @@ class Server:
             except FailedToRegisterClient:
                 self.logger.error("Registering client failed")
                 return
+
+            # At this point the client should be registered
+            if not self.model.does_client_uuid_exist(message.header.client_id):
+                self.logger.error(
+                    f"{message.header.client_id} does not exist. Closing connection")
+                return
+
             self.handle_public_key_message(client_connection, message)
 
             message = message_handler.read_message()
@@ -114,6 +121,8 @@ class Server:
     def handle_post_file_upload(self, client_connection: AbstractConnectionInterface, message_handler: ClientConnectionMessageReader):
         message = message_handler.read_message()
         while isinstance(message.payload, FileCRCIncorrectWillRetryMessage):
+            self.logger.error(f"{message.header.client_id} sent crc was wrong")
+            self.handle_file_crc_incorrect(message)
             message = message_handler.read_message()
             self.handle_upload_file_message(
                 client_connection, message)
@@ -121,18 +130,48 @@ class Server:
         # Client either accepted our checksum, or gave up
         if isinstance(message.payload, FileCRCIncorrectGivingUpMessage):
             self.logger.error(f"{message.header.client_id} Gave up")
+            self.handle_file_crc_incorrect(message)
         elif isinstance(message.payload, FileCRCOKMessage):
-            client_connection.send(
-                SuccessResponseMessage(self.SERVER_VERSION).pack())
+            self.handle_file_crc_correct(client_connection, message)
         else:
             raise WrongMessageReceived(message)
 
+    def handle_file_crc_correct(self, client_connection: AbstractConnectionInterface,
+                                message: ClientMessageWithHeader):
+        if not isinstance(message.payload, FileCRCOKMessage):
+            raise WrongMessageReceived(message)
+
+        self.logger.info(f"{message.header.client_id} sent crc was correct")
+        self.model.set_file_verified(
+            message.header.client_id, message.payload.filename)
+        client_connection.send(
+            SuccessResponseMessage(self.SERVER_VERSION).pack())
+
+    def handle_file_crc_incorrect(self, message: ClientMessageWithHeader):
+        """
+        Accept FileCRCIncorrectWillRetryMessage or a FileCRCIncorrectGivingUpMessage message.
+        either way we delete the file and remove it's entry from the database
+        """
+        if not (isinstance(message.payload, FileCRCIncorrectWillRetryMessage) or isinstance(message.payload, FileCRCIncorrectGivingUpMessage)):
+            raise WrongMessageReceived(message)
+        self.logger.info(
+            f"Deleting and removing file: {message.payload.filename} for {message.header.client_id}")
+        self.file_manager.remove_file(self.model.get_file_path(
+            message.header.client_id, message.payload.filename))
+        self.model.remove_file(message.header.client_id,
+                               message.payload.filename)
+
     def handle_upload_file_message(self, client_connection: AbstractConnectionInterface,
                                    message: ClientMessageWithHeader):
+        """
+        Accept a UploadFileMessage from the client. Calculate the crc on the plain file, store it and send a
+        UploadFileSuccessfulMessage response.
+        """
         if not isinstance(message.payload, UploadFileMessage):
             raise WrongMessageReceived(message)
 
-        self.logger.info(f"{message.header.client_id} uploaded a file")
+        self.logger.info(
+            f"{message.header.client_id} uploaded a file: {message.payload.filename}")
         aes_key = self.model.get_client_aes_key(message.header.client_id)
         plain_content = self.encryption_utils.aes_decrypt(
             message.payload.content, aes_key)
@@ -143,7 +182,8 @@ class Server:
                               message.payload.filename, local_path)
         response = UploadFileSuccessfulMessage(self.SERVER_VERSION,
                                                message.header.client_id,
-                                               len(plain_content), message.payload.filename, checksum)
+                                               len(message.payload.content),
+                                               message.payload.filename, checksum)
         client_connection.send(response.pack())
 
     def handle_public_key_message(self, client_connection: AbstractConnectionInterface,
@@ -175,7 +215,7 @@ class Server:
         return False
 
     def register_client(self, client_connection: AbstractConnectionInterface, registration_message: ClientMessageWithHeader):
-        self.logger.info(f"Trying to register new client")
+        self.logger.debug(f"Trying to register new client")
         if not isinstance(registration_message.payload, ClientRegistrationRequest):
             raise WrongMessageReceived(registration_message)
 
@@ -195,6 +235,7 @@ class Server:
                             datetime.now(),
                             b"")
             self.model.register_client(client)
+            self.logger.info(f"Registered new client with {new_client_uuid}")
             response = RegistrationSuccessfulMessage(self.SERVER_VERSION,
                                                      new_client_uuid)
             client_connection.send(response.pack())

@@ -158,33 +158,48 @@ class UploadFileMessage(ClientMessage):
 
 
 class FileCRCOKMessage(ClientMessage):
+    def __init__(self, client_uuid: UUID, filename: str) -> None:
+        self.client_uuid = client_uuid
+        self.filename = filename
+
     @classmethod
     def unpack(cls, reader: ClientMessageReader) -> 'FileCRCOKMessage':
-        return cls()
+        client_uuid, filename = cls.read_fmt(cls.MESSAGE_FMT(), reader)
+        return cls(client_uuid, filename.decode())
 
     @staticmethod
     def MESSAGE_FMT() -> str:
-        return ""
+        return "<16s255s"
 
 
 class FileCRCIncorrectWillRetryMessage(ClientMessage):
+    def __init__(self, client_uuid: UUID, filename: str) -> None:
+        self.client_uuid = client_uuid
+        self.filename = filename
+
     @classmethod
     def unpack(cls, reader: ClientMessageReader) -> 'FileCRCIncorrectWillRetryMessage':
-        return cls()
+        client_uuid, filename = cls.read_fmt(cls.MESSAGE_FMT(), reader)
+        return cls(client_uuid, filename.decode())
 
     @staticmethod
     def MESSAGE_FMT() -> str:
-        return ""
+        return "<16s255s"
 
 
 class FileCRCIncorrectGivingUpMessage(ClientMessage):
+    def __init__(self, client_uuid: UUID, filename: str) -> None:
+        self.client_uuid = client_uuid
+        self.filename = filename
+
     @classmethod
     def unpack(cls, reader: ClientMessageReader) -> 'FileCRCIncorrectGivingUpMessage':
-        return cls()
+        client_uuid, filename = cls.read_fmt(cls.MESSAGE_FMT(), reader)
+        return cls(client_uuid, filename.decode())
 
     @staticmethod
     def MESSAGE_FMT() -> str:
-        return ""
+        return "<16s255s"
 
 
 class FailedToParseMessage(Exception):

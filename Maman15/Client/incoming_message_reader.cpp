@@ -11,14 +11,18 @@ uint8_t ConnectionManagerMessageReader::read_uint8() {
 
 uint16_t ConnectionManagerMessageReader::read_uint16() {
     string read_value{connection_.read(2)};
-    return read_value[0] | read_value[1] << 8;
+    uint16_t return_value{0};
+    return_value |= static_cast<uint8_t>(read_value[0]);
+    return_value |= static_cast<uint8_t>(read_value[1]) << 8;
+    return return_value;
 }
 uint32_t ConnectionManagerMessageReader::read_uint32() {
     string read_value{connection_.read(4)};
-    uint32_t return_value = read_value[0];
-    return_value |= read_value[1] << 8;
-    return_value |= read_value[2] << 16;
-    return_value |= read_value[3] << 24;
+    uint32_t return_value{0};
+    return_value |= static_cast<uint8_t>(read_value[0]);
+    return_value |= static_cast<uint8_t>(read_value[1]) << 8;
+    return_value |= static_cast<uint8_t>(read_value[2]) << 16;
+    return_value |= static_cast<uint8_t>(read_value[3]) << 24;
     return return_value;
 }
 

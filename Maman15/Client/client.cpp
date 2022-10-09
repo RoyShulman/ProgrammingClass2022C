@@ -40,14 +40,19 @@ void Client::run() {
     if (send_encrypted_file_and_validate_checksum(aes_key)) {
         BOOST_LOG_TRIVIAL(info) << "File uploaded successfuly";
         protocol::FileCRCOkMessage message{client_version_,
-                                           user_info_.get_uuid()};
+                                           user_info_.get_uuid(),
+                                           transfer_info_.get_transfer_file().string()};
         connection_.write(message.pack());
     } else {
         BOOST_LOG_TRIVIAL(error) << "File could not be uploaded";
         protocol::CRCIncorrectGivingUp message{client_version_,
-                                               user_info_.get_uuid()};
+                                               user_info_.get_uuid(),
+                                               transfer_info_.get_transfer_file().string()};
         connection_.write(message.pack());
+        return;
     }
+    auto response{protocol::SuccessResponseMessage::parse_from_incoming_message(reader_, server_version_)};
+    BOOST_LOG_TRIVIAL(info) << "Server sent final success response. Exiting";
 }
 
 bool Client::register_client() {
@@ -84,7 +89,8 @@ string Client::exchange_keys() {
     connection_.write(public_key_message.pack());
     protocol::AESKeyMessage aes_key_message{protocol::AESKeyMessage::parse_from_incoming_message(reader_,
                                                                                                  server_version_)};
-    return aes_key_message.get_aes_key();
+    string encrypted_aes{aes_key_message.get_encrypted_aes_key()};
+    return user_info_.get_key().decrypt(encrypted_aes);
 }
 
 bool Client::send_encrypted_file_and_validate_checksum(const string& aes_key) {
@@ -102,9 +108,12 @@ bool Client::send_encrypted_file_and_validate_checksum(const string& aes_key) {
         connection_.write(message.pack());
         auto response{protocol::UploadFileSuccessfulMessage::parse_from_incoming_message(reader_,
                                                                                          server_version_)};
-        if (response.get_checksum() != checksum) {
+        if (response.get_checksum() != checksum && i != NUM_SEND_FILE_RETRIES - 1) {
+            // We don't want to send a retry on the last message
+            BOOST_LOG_TRIVIAL(error) << "Incorrect checksum. Retrying (retry number: " << std::to_string(i) << ")";
             protocol::CRCIncorrectWillRetry retry_message{client_version_,
-                                                          user_info_.get_uuid()};
+                                                          user_info_.get_uuid(),
+                                                          transfer_info_.get_transfer_file().string()};
             connection_.write(retry_message.pack());
         } else {
             validated = true;

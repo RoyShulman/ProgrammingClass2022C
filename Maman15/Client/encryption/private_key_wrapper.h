@@ -43,6 +43,7 @@ public:
     friend std::ostream& operator<<(std::ostream& stream, const PrivateKeyWrapper& info);
 
     string get_public() const;
+    string decrypt(const string& cipher) const;
 
 private:
     CryptoPP::RSA::PrivateKey private_key_;

@@ -62,17 +62,17 @@ class RegistrationFailedMessage(ServerMessage):
 
 
 class AESKeyMessage(ServerMessage):
-    def __init__(self, server_version: int, uuid: UUID, aes_key: bytes) -> None:
+    def __init__(self, server_version: int, uuid: UUID, encrypted_aes_key: bytes) -> None:
         super().__init__(server_version, ServerMessageCode.AES_KEY)
         self.uuid = uuid
-        self.aes_key = aes_key
+        self.encrypted_aes_key = encrypted_aes_key
 
     def pack(self) -> bytearray:
-        return super().pack() + struct.pack(self.PAYLOAD_FMT, self.uuid.bytes, self.aes_key)
+        return super().pack() + struct.pack(self.PAYLOAD_FMT, self.uuid.bytes, self.encrypted_aes_key)
 
     @property
     def PAYLOAD_FMT(self) -> str:
-        return f"<16s{len(self.aes_key)}s"
+        return f"<16s{len(self.encrypted_aes_key)}s"
 
 
 class UploadFileSuccessfulMessage(ServerMessage):

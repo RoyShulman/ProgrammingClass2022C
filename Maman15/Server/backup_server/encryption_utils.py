@@ -2,6 +2,7 @@ import secrets
 from abc import ABC, abstractmethod
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP, AES
+from Crypto.Util.Padding import unpad
 
 
 class AbstractEncryptionUtils(ABC):
@@ -42,5 +43,5 @@ class EncryptionUtils(AbstractEncryptionUtils):
     @staticmethod
     def aes_decrypt(cipher: bytes, aes_key: bytes) -> bytes:
         # taken from https://pycryptodome.readthedocs.io/en/latest/src/examples.html#encrypt-data-with-rsa
-        cipher_aes = AES.new(key=aes_key, mode=AES.MODE_CBC, nonce=b"\x00"*16)
-        return cipher_aes.decrypt(cipher)
+        cipher_aes = AES.new(key=aes_key, mode=AES.MODE_CBC, iv=b"\x00"*16)
+        return unpad(cipher_aes.decrypt(cipher), cipher_aes.block_size)

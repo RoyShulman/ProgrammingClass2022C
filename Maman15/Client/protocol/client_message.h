@@ -44,19 +44,6 @@ private:
     buuid::uuid uuid_;
 };
 
-/**
- * @brief Base class for client messages with no payload.
- */
-class EmptyPayloadClientMessage : public ClientMessage {
-protected:
-    // This class shouldn't be initialized so the constructor is protected
-    EmptyPayloadClientMessage(ClientVersion version, ClientMessageID code, buuid::uuid uuid);
-
-public:
-    virtual string pack() const override;
-    virtual uint32_t get_payload_size() const override;
-};
-
 class RegistrationRequestMessage : public ClientMessage {
 public:
     RegistrationRequestMessage(ClientVersion version, buuid::uuid uuid, util::NameString name);
@@ -92,19 +79,37 @@ private:
     string encrypted_file_content_;
 };
 
-class FileCRCOkMessage : public EmptyPayloadClientMessage {
+class FileCRCOkMessage : public ClientMessage {
 public:
-    FileCRCOkMessage(ClientVersion version, buuid::uuid uuid);
+    FileCRCOkMessage(ClientVersion version, buuid::uuid uuid, util::NameString file_name);
+
+    virtual string pack() const override;
+    virtual uint32_t get_payload_size() const override;
+
+private:
+    util::NameString file_name_;
 };
 
-class CRCIncorrectWillRetry : public EmptyPayloadClientMessage {
+class CRCIncorrectWillRetry : public ClientMessage {
 public:
-    CRCIncorrectWillRetry(ClientVersion version, buuid::uuid uuid);
+    CRCIncorrectWillRetry(ClientVersion version, buuid::uuid uuid, util::NameString file_name);
+
+    virtual string pack() const override;
+    virtual uint32_t get_payload_size() const override;
+
+private:
+    util::NameString file_name_;
 };
 
-class CRCIncorrectGivingUp : public EmptyPayloadClientMessage {
+class CRCIncorrectGivingUp : public ClientMessage {
 public:
-    CRCIncorrectGivingUp(ClientVersion version, buuid::uuid uuid);
+    CRCIncorrectGivingUp(ClientVersion version, buuid::uuid uuid, util::NameString file_name);
+
+    virtual string pack() const override;
+    virtual uint32_t get_payload_size() const override;
+
+private:
+    util::NameString file_name_;
 };
 
 }  // namespace protocol

@@ -95,24 +95,25 @@ public:
     static AESKeyMessage parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
                                                      ServerVersion expected_version);
 
-    const string& get_aes_key() const { return aes_key_; };
+    const string& get_encrypted_aes_key() const { return encrypted_aes_key_; };
 
 private:
-    static constexpr size_t AES_KEY_SIZE_ = 16;
-    string aes_key_;
+    string encrypted_aes_key_;
 };
 
 class UploadFileSuccessfulMessage : public ServerMessage {
 public:
-    UploadFileSuccessfulMessage(ServerVersion version, buuid::uuid uuid, uint32_t payload_size, util::NameString filename, uint32_t checksum);
+    UploadFileSuccessfulMessage(ServerVersion version, buuid::uuid uuid, uint32_t payload_size, uint32_t content_size, util::NameString filename, uint32_t checksum);
 
     static UploadFileSuccessfulMessage parse_from_incoming_message(shared_ptr<AbstractIncomingMessageReader> message,
                                                                    ServerVersion expected_version);
 
     const util::NameString& get_filename() const { return filename_; };
     uint32_t get_checksum() const { return checksum_; };
+    uint32_t get_content_size() const { return content_size_; };
 
 private:
+    uint32_t content_size_;
     util::NameString filename_;
     uint32_t checksum_;
 };

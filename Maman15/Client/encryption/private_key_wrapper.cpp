@@ -73,5 +73,18 @@ string PrivateKeyWrapper::get_public() const {
     return public_key;
 }
 
+string PrivateKeyWrapper::decrypt(const string& cipher) const {
+    // Taken from https://www.cryptopp.com/wiki/RSA_Cryptography#Encryption_Scheme_(OAEP_using_SHA)
+    CryptoPP::AutoSeededRandomPool rng;
+    CryptoPP::RSAES_OAEP_SHA_Decryptor d(private_key_);
+    string plain;
+
+    CryptoPP::StringSource source(cipher, true,
+                                  new CryptoPP::PK_DecryptorFilter(
+                                      rng, d, new CryptoPP::StringSink(plain))  // PK_DecryptorFilter
+    );                                                                          // StringSource
+    return plain;
+}
+
 }  // namespace encryption
 }  // namespace client

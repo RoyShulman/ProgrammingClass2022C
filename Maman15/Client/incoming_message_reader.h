@@ -19,6 +19,7 @@ class AbstractIncomingMessageReader {
 public:
     virtual ~AbstractIncomingMessageReader() = default;
 
+    // All read functions expect the data to be sent in little endian
     virtual uint8_t read_uint8() = 0;
     virtual uint16_t read_uint16() = 0;
     virtual uint32_t read_uint32() = 0;
