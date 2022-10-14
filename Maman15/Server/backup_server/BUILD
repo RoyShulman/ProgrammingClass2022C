@@ -31,10 +31,21 @@ py_library(
 )
 
 py_library(
+    name = "abstract_encryption_utils",
+    srcs = ["abstract_encryption_utils.py"],
+    visibility = [
+        "//Maman15/Server/test:__pkg__",
+    ],
+)
+
+py_library(
     name = "encryption_utils",
     srcs = ["encryption_utils.py"],
     visibility = [
         "//Maman15/Server/test:__pkg__",
+    ],
+    deps = [
+        ":abstract_encryption_utils",
     ],
 )
 
@@ -53,9 +64,9 @@ py_library(
         "//Maman15/Server/test:__pkg__",
     ],
     deps = [
+        ":abstract_encryption_utils",
         ":connection_interface",
         ":crc32",
-        ":encryption_utils",
         ":file_manager",
         ":model",
         "//Maman15/Server/backup_server/protocol:client_message",
@@ -70,8 +81,8 @@ py_library(
         "//Maman15/Server/test:__pkg__",
     ],
     deps = [
+        ":port_info",
         ":server",
-        ":port_info"
     ],
 )
 
@@ -80,6 +91,7 @@ py_binary(
     srcs = ["main.py"],
     imports = ["../"],
     deps = [
+        ":encryption_utils",
         ":server_manager",
     ],
 )

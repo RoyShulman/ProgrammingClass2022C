@@ -1,31 +1,22 @@
 import secrets
-from abc import ABC, abstractmethod
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP, AES
 from Crypto.Util.Padding import unpad
 
+from backup_server.abstract_encryption_utils import AbstractEncryptionUtils
 
-class AbstractEncryptionUtils(ABC):
-    """
-    Abstract class to allow testing the server
-    with predefined keys.
-    This is useless for unit tests where we want
-    the keys to not be random
-    """
-    @staticmethod
-    @abstractmethod
-    def get_aes_key(size: int) -> bytes:
-        raise NotImplementedError
+"""
+Why is this in a different file from abstract_encryption_utils.py as 
+opposed to connection_interface.py which has both the 
+interface and the implementation in the same file?
 
-    @staticmethod
-    @abstractmethod
-    def rsa_encrypt(plain: bytes, public_key: bytes) -> bytes:
-        raise NotImplementedError
-
-    @staticmethod
-    @abstractmethod
-    def aes_decrypt(cipher: bytes, aes_key: bytes) -> bytes:
-        raise NotImplementedError
+In order for us to unit test the server code we create a mock
+implementation for AbstractEncryptionUtils. To allow us to test
+using CI/CD without installing pycroptodome, we only import 
+pycroptodome in this file, and upload abstract_encryption_utils.py
+without this file. As opposed to connection_intreface which has no
+external dependencies
+"""
 
 
 class EncryptionUtils(AbstractEncryptionUtils):

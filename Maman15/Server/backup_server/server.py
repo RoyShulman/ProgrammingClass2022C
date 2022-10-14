@@ -27,7 +27,7 @@ from backup_server.protocol.server_message import (
     SuccessResponseMessage
 )
 from backup_server.server_model import AbstractServerModel, Client
-from backup_server.encryption_utils import AbstractEncryptionUtils
+from backup_server.abstract_encryption_utils import AbstractEncryptionUtils
 from backup_server.file_manager import FileManager
 
 

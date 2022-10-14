@@ -2,7 +2,7 @@ from pathlib import Path
 from contextlib import closing, contextmanager
 from typing import Iterator
 from backup_server.connection_interface import AbstractConnectionInterface
-from backup_server.encryption_utils import AbstractEncryptionUtils
+from backup_server.abstract_encryption_utils import AbstractEncryptionUtils
 from backup_server.server import Server
 from backup_server.port_info import PortInfo, PortInfoFileNotFound
 from backup_server.server_model import AbstractServerModel

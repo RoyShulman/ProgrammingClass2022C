@@ -19,7 +19,7 @@ from backup_server.protocol.client_message import (
     UploadFileMessage)
 from backup_server.protocol.server_message import AESKeyMessage, UploadFileSuccessfulMessage
 from backup_server.server_model import AbstractServerModel, Client
-from backup_server.encryption_utils import AbstractEncryptionUtils
+from backup_server.abstract_encryption_utils import AbstractEncryptionUtils
 from backup_server.crc32 import crc32
 
 
