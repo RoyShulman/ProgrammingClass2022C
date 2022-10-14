@@ -63,6 +63,10 @@ class ClientConnectionMessageReader:
 
 
 class Server:
+    """
+    The server class. 
+    Responsible for serving requests to clients and updating the databse
+    """
     NUM_LISTENING_CONNECTIONS = 10
     SERVER_VERSION = 3
     AES_KEY_SIZE = 16
@@ -128,7 +132,13 @@ class Server:
             # The upload file message can be sent again, or a checksum ok, or final checksum incorrect
             self.handle_post_file_upload(client_connection, message_handler)
 
-    def handle_post_file_upload(self, client_connection: AbstractConnectionInterface, message_handler: ClientConnectionMessageReader):
+    def handle_post_file_upload(self, client_connection: AbstractConnectionInterface,
+                                message_handler: ClientConnectionMessageReader):
+        """
+        We should call this function after a client uploaded a file.
+        Checks the response from the client. If it is a FileCRCIncorrectWillRetryMessage, we 
+        delete the previously uploaded file and wait for another upload.
+        """
         message = message_handler.read_message()
         while isinstance(message.payload, FileCRCIncorrectWillRetryMessage):
             self.logger.error(f"{message.header.client_id} sent crc was wrong")
@@ -202,6 +212,7 @@ class Server:
             raise WrongMessageReceived(message)
 
         self.logger.info(f"Updating public key for {message.header.client_id}")
+        # It is specified the AES should be uniquly generated for each session with a client
         aes_key = self.encryption_utils.get_aes_key(self.AES_KEY_SIZE)
         self.model.update_client_keys(message.header.client_id,
                                       message.payload.public_key,
