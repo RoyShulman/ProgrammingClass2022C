@@ -65,8 +65,8 @@ bool Client::register_client() {
                                                               transfer_info_.get_client_name()};
     connection_.write(registration_request.pack());
     try {
-        protocol::RegistrationSuccessfulMessage response{protocol::RegistrationSuccessfulMessage::parse_from_incoming_message(reader_,
-                                                                                                                              server_version_)};
+        auto response{protocol::RegistrationSuccessfulMessage::parse_from_incoming_message(reader_,
+                                                                                           server_version_)};
         BOOST_LOG_TRIVIAL(info) << "Successful registration. Using new uuid: " << buuid::to_string(response.get_uuid());
         user_info_.set_uuid(response.get_uuid());
         user_info_.set_name(transfer_info_.get_client_name());
@@ -87,8 +87,8 @@ string Client::exchange_keys() {
                                                         transfer_info_.get_client_name(),
                                                         user_info_.get_key().get_public()};
     connection_.write(public_key_message.pack());
-    protocol::AESKeyMessage aes_key_message{protocol::AESKeyMessage::parse_from_incoming_message(reader_,
-                                                                                                 server_version_)};
+    auto aes_key_message{protocol::AESKeyMessage::parse_from_incoming_message(reader_,
+                                                                              server_version_)};
     string encrypted_aes{aes_key_message.get_encrypted_aes_key()};
     return user_info_.get_key().decrypt(encrypted_aes);
 }

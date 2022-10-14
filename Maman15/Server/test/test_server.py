@@ -8,7 +8,7 @@ from ipaddress import IPv4Address
 from unittest.mock import MagicMock, ANY
 from typing import cast
 from ipaddress import IPv4Address
-from backup_server.server import FailedToRegisterClient, Server, ClientAlreadyRegisteredException, WrongMessageReceived
+from backup_server.server import FailedToRegisterClient, Server, WrongMessageReceived
 from backup_server.connection_interface import AbstractConnectionInterface, IncomingConnection, Address
 from backup_server.protocol.client_message import (
     ClientMessageCode,
@@ -17,7 +17,7 @@ from backup_server.protocol.client_message import (
     ClientRegistrationRequest,
     ClientPublicKeyMessage,
     UploadFileMessage)
-from backup_server.protocol.server_message import AESKeyMessage, RegistrationSuccessfulMessage, UploadFileSuccessfulMessage
+from backup_server.protocol.server_message import AESKeyMessage, UploadFileSuccessfulMessage
 from backup_server.server_model import AbstractServerModel, Client
 from backup_server.encryption_utils import AbstractEncryptionUtils
 from backup_server.crc32 import crc32
