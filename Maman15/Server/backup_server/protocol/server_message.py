@@ -13,6 +13,9 @@ class ServerMessageCode(Enum):
 
 
 class ServerMessage(ABC):
+    """
+    Base class for all server messages
+    """
     HEADER_FMT = "<BHI"
 
     def __init__(self, server_version: int, code: ServerMessageCode) -> None:
@@ -21,11 +24,17 @@ class ServerMessage(ABC):
 
     @abstractmethod
     def pack(self) -> bytearray:
+        """
+        Subclasses should override this method to pack their payload
+        """
         return self.pack_header()
 
     @property
     @abstractmethod
     def PAYLOAD_FMT(self) -> str:
+        """
+        Subclasses should override this method to specify their payload format
+        """
         raise NotImplementedError
 
     def get_payload_size(self) -> int:

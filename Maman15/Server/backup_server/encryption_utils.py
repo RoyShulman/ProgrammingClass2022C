@@ -10,12 +10,12 @@ Why is this in a different file from abstract_encryption_utils.py as
 opposed to connection_interface.py which has both the 
 interface and the implementation in the same file?
 
-In order for us to unit test the server code we create a mock
+In order for us to unit test the server code, we create a mock
 implementation for AbstractEncryptionUtils. To allow us to test
 using CI/CD without installing pycroptodome, we only import 
 pycroptodome in this file, and upload abstract_encryption_utils.py
-without this file. As opposed to connection_intreface which has no
-external dependencies
+without this file. This is as opposed to connection_intreface which has no
+external dependencies.
 """
 
 

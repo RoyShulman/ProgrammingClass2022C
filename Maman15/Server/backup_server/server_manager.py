@@ -9,6 +9,12 @@ from backup_server.server_model import AbstractServerModel
 
 
 class ServerManager:
+    """
+    Class to create a server with the wanted port. 
+    It first tries to read the port from a file, and if the file isn't there it 
+    defaults to 1234.
+    This class also closes the server connection when needed, or on any error
+    """
     DEFAULT_PORT = 1234
 
     def __init__(self, connection: AbstractConnectionInterface, model: AbstractServerModel,

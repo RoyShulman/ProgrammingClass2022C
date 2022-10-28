@@ -42,7 +42,19 @@ public:
 class File {
 public:
     explicit File(bfs::path path, bool is_binary = false);
+    
+    /**
+     * @brief Read the lines from the file into a vector
+     * 
+     * @return vector<string> The lines
+     */
     vector<string> read_lines();
+    
+    /**
+     * @brief Read the entire file into a string
+     * 
+     * @return string The file content
+     */
     string read();
 
 private:

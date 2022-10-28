@@ -83,6 +83,10 @@ class Server:
         self.logger = logging.getLogger(__name__)
 
     def server_requests(self) -> None:
+        """
+        Main server function.
+        Listens for incoming connections, spawning a new thread to handle each one
+        """
         self.logger.info(f"Starting to serve requests on port: {self.port}")
         self.connection.bind(Address(self.LISTENING_ADDRESS, self.port))
         self.connection.listen(self.NUM_LISTENING_CONNECTIONS)
@@ -158,6 +162,10 @@ class Server:
 
     def handle_file_crc_correct(self, client_connection: AbstractConnectionInterface,
                                 message: ClientMessageWithHeader):
+        """
+        Called when a client sends the server the crc was verified.
+        Updates the database that the file was verified and send a sucess response to the client
+        """
         if not isinstance(message.payload, FileCRCOKMessage):
             raise WrongMessageReceived(message)
 
@@ -208,6 +216,11 @@ class Server:
 
     def handle_public_key_message(self, client_connection: AbstractConnectionInterface,
                                   message: ClientMessageWithHeader):
+        """
+        Called when a client send the server the public key.
+        The server then generate the aes key for this connection, updates both in the database.
+        It then encrypts the aes key using the public key and send it to the client
+        """
         if not isinstance(message.payload, ClientPublicKeyMessage):
             raise WrongMessageReceived(message)
 
@@ -236,6 +249,11 @@ class Server:
         return False
 
     def register_client(self, client_connection: AbstractConnectionInterface, registration_message: ClientMessageWithHeader):
+        """
+        Try to register a new client by generating a new uuid and storing it in the database.
+        Send a registration success to the client with the new uuid.
+        This function will fail if the user is already registered.
+        """
         self.logger.debug(f"Trying to register new client")
         if not isinstance(registration_message.payload, ClientRegistrationRequest):
             raise WrongMessageReceived(registration_message)
@@ -266,4 +284,7 @@ class Server:
             raise FailedToRegisterClient()
 
     def close(self):
+        """
+        Close the server connection
+        """
         self.connection.close()

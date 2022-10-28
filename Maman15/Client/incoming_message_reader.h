@@ -26,6 +26,10 @@ public:
     virtual string read_bytes(size_t length) = 0;
 };
 
+/**
+ * @brief Read from a ConnectionManager
+ * 
+ */
 class ConnectionManagerMessageReader : public AbstractIncomingMessageReader {
 public:
     ConnectionManagerMessageReader(ConnectionManager& connection);

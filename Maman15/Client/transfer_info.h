@@ -17,6 +17,11 @@ public:
     InvalidTransferInfoFile(const bfs::path& info_file, const string& error);
 };
 
+/**
+ * @brief Stores information about the file the client wants to transfer to the server,
+ * as well as the server address and the client name
+ * 
+ */
 class TransferInfo {
 private:
     static const size_t NUM_LINES_IN_INFO_FILE_ = 3;
@@ -29,6 +34,13 @@ private:
 public:
     // This constructor is used to make unit testing easier
     TransferInfo(bip::tcp::endpoint server, string client_name, bfs::path transfer_file);
+
+    /**
+     * @brief Read the information from the given file
+     * 
+     * @param info_file - File to read from
+     * @return TransferInfo 
+     */
     static TransferInfo from_file(const bfs::path& info_file = DEFAULT_FILENAME_);
 
     bool operator==(const TransferInfo& rhs) const;

@@ -5,7 +5,7 @@ class AbstractEncryptionUtils(ABC):
     """
     Abstract class to allow testing the server
     with predefined keys.
-    This is useless for unit tests where we want
+    This is useful for unit tests where we want
     the keys to not be random
     """
     @staticmethod

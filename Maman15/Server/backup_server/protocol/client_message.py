@@ -26,10 +26,17 @@ class ClientMessageReader:
         self.connection = connection
 
     def read(self, size: int) -> bytes:
+        """
+        Read the given size from the connection
+        """
         return self.connection.recv(size)
 
 
 class ClientMessageCodeMissmatch(Exception):
+    """
+    Exception raised when we expect a specific code from the client
+    but are sent a different one
+    """
     pass
 
 
@@ -41,18 +48,30 @@ class ClientMessage(ABC):
     @classmethod
     @abstractmethod
     def unpack(cls, reader: ClientMessageReader) -> 'ClientMessage':
+        """
+        Subclasses should override this method and unpack their class using the reader
+        """
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
     def MESSAGE_FMT() -> str:
+        """
+        All subclasses should override this method and specify the expected message format
+        """
         raise NotImplementedError
 
     @staticmethod
     def read_fmt(fmt: str, reader: ClientMessageReader) -> Any:
+        """
+        Read from the ClientMessageReader and unpack the message according to the format
+        """
         return struct.unpack(fmt, reader.read(struct.calcsize(fmt)))
 
     def validate_message_code(self, expected: ClientMessageCode, real: ClientMessageCode):
+        """
+        Raises an exception if the expected code doesn't match the real parsed code
+        """
         if expected != real:
             raise ClientMessageCodeMissmatch(expected, real)
 
@@ -203,11 +222,17 @@ class FileCRCIncorrectGivingUpMessage(ClientMessage):
 
 
 class FailedToParseMessage(Exception):
+    """
+    Exception raised when we fail to parse a message from the client
+    """
     pass
 
 
 @dataclass(frozen=True)
 class ClientMessageWithHeader:
+    """
+    All client messages have a header and a payload
+    """
     header: ClientMessageHeader
     payload: ClientMessage
 
@@ -224,6 +249,9 @@ class ClientMessageParser:
 
     @staticmethod
     def parse_message(reader: ClientMessageReader) -> 'ClientMessageWithHeader':
+        """
+        Parse client messages according to their code, and return their class representation
+        """
         header = ClientMessageHeader.unpack(reader)
         try:
             payload = ClientMessageParser.MESSAGE_CODE_TO_CLS[header.code].unpack(

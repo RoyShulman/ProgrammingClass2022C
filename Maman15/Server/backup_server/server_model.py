@@ -37,61 +37,99 @@ class AbstractServerModel(ABC):
     """
     Abstract interface to the database.
     Allows unit testing the server without a database, and to change our database if at some point
-    in the future we want to change from sql to a different one
+    in the future we want to change from mysql to a different one
     """
     @abstractmethod
     def create_tables_if_needed(self) -> None:
+        """
+        Create the wanted tables in the database if they don't already exist
+        """
         raise NotImplementedError
 
     @abstractmethod
     def get_clients(self) -> List[Client]:
+        """
+        Get a list of all clients registered in the database
+        """
         raise NotImplementedError
 
     @abstractmethod
     def get_client(self, client_uuid: UUID) -> Client:
+        """
+        Get a single client by the given uuid
+        """
         raise NotImplementedError
 
     @abstractmethod
     def is_client_registered(self, client_name: str) -> bool:
+        """
+        Check if the client with the given name is registered
+        """
         raise NotImplementedError
 
     @abstractmethod
     def register_client(self, client: Client) -> None:
+        """
+        Insert the given client into the database
+        """
         raise NotImplementedError
 
     @abstractmethod
     def update_client_keys(self, client_uuid: UUID, public_key: bytes, aes_key: bytes) -> None:
+        """
+        Update the aes and public key of the given client by uuid
+        """
         raise NotImplementedError
 
     @abstractmethod
     def store_file(self, client_uuid: UUID, filename: str, path: Path) -> None:
+        """
+        Insert the file with the given client filename and it's path on the server for the uuid into
+        the database
+        """
         raise NotImplementedError
 
     @abstractmethod
     def remove_file(self, client_uuid: UUID, filename: str) -> None:
+        """
+        Delete a filename for the given client uuid from the database
+        """
         raise NotImplementedError
 
     @abstractmethod
     def get_client_aes_key(self, client_uuid: UUID) -> bytes:
+        """
+        Get the aes of the given client
+        """
         raise NotImplementedError
 
     @abstractmethod
     def does_client_uuid_exist(self, client_uuid: UUID) -> bool:
+        """
+        Check if the given uuid is in the database
+        """
         raise NotImplementedError
 
     @abstractmethod
     def set_file_verified(self, client_uuid: UUID, filename: str) -> None:
+        """
+        Update the filename to verified in the database
+        """
         raise NotImplementedError
 
     @abstractmethod
     def get_file_path(self, client_uuid: UUID, filename: str) -> Path:
+        """
+        Get the local path of the filename
+        """
         raise NotImplementedError
 
     @abstractmethod
     def update_last_seen_time(self, client_uuid: UUID, last_seen: Optional[datetime] = None) -> None:
+        """
+        Update the time for the last message we saw from the client
+        """
         raise NotImplementedError
-
-# TODO: should filename be bytes? so we keep the null terminator
 
 
 class ServerModel(AbstractServerModel):

@@ -22,6 +22,13 @@ public:
 class AESWrapper {
 public:
     explicit AESWrapper(const string& key);
+
+    /**
+     * @brief Encrypt the plain using the aes key
+     * 
+     * @param plain - String to encrypt
+     * @return The encrypted string
+     */
     string encrypt(const string& plain);
 
 private:

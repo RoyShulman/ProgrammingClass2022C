@@ -11,6 +11,10 @@ using std::unique_ptr;
 
 namespace client {
 
+/**
+ * @brief Class to allow abstracting the writing and reading from a network socket
+ * 
+ */
 class ConnectionManager {
 public:
     ConnectionManager(bip::tcp::endpoint server);

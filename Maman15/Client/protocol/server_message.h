@@ -37,6 +37,11 @@ class WrongMessageCode : public runtime_error {
 public:
     WrongMessageCode(ServerMessageID expected, ServerMessageID read);
 
+    /**
+     * @brief Get the messages code that was read in the message
+     * 
+     * @return ServerMessageID 
+     */
     ServerMessageID get_read() const { return read_; };
 
 private:

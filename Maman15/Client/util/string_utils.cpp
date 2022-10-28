@@ -7,12 +7,12 @@ using std::stringstream;
 namespace client {
 namespace util {
 
-StringIsNotAValidEndpoint::StringIsNotAValidEndpoint(const string& s)
-    : invalid_argument("Given string: " + s + " cannot be converted to boost endopoint") {}
+StringIsNotAValidEndpoint::StringIsNotAValidEndpoint(const string& string_endpoint)
+    : invalid_argument("Given string: " + string_endpoint + " cannot be converted to boost endopoint") {}
 
-bip::tcp::endpoint string_to_endpoint(const string& s) {
+bip::tcp::endpoint string_to_endpoint(const string& string_endpoint) {
     string ip, port;
-    stringstream stream{s};
+    stringstream stream{string_endpoint};
     const char delimiter{':'};
     std::getline(stream, ip, delimiter);
     std::getline(stream, port, delimiter);
@@ -22,7 +22,7 @@ bip::tcp::endpoint string_to_endpoint(const string& s) {
     try {
         return {*resolver.resolve(ip, port)};
     } catch (const std::exception& e) {
-        throw StringIsNotAValidEndpoint{s};
+        throw StringIsNotAValidEndpoint{string_endpoint};
     };
 }
 

@@ -7,6 +7,8 @@ from backup_server.connection_interface import SocketConnectionInterface
 from backup_server.server_model import ServerModel
 from backup_server.encryption_utils import EncryptionUtils
 
+BACKUP_DIRECTORY = Path("/tmp/backupsrv")
+
 
 def setup_logging():
     # taken from https://docs.python.org/3/library/logging.html
@@ -17,6 +19,9 @@ def setup_logging():
 
 
 def run_server(base_storage_path: Path):
+    """
+    Run the server, and save files from the client to the given directory
+    """
     server_socket = socket.socket()
     connection = SocketConnectionInterface(server_socket)
     model = ServerModel()
@@ -26,10 +31,11 @@ def run_server(base_storage_path: Path):
         server.server_requests()
 
 
-BACKUP_DIRECTORY = Path("/tmp/backupsrv")
-
-
 def main():
+    """
+    The main server function.
+    Sets up logging, creates the backup directory if it doesn't exist and runs the server
+    """
     setup_logging()
     BACKUP_DIRECTORY.mkdir(exist_ok=True)
     run_server(BACKUP_DIRECTORY)

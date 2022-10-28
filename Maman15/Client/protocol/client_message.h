@@ -30,10 +30,25 @@ protected:
     ClientMessage(ClientVersion version, ClientMessageID code, buuid::uuid uuid);
     virtual ~ClientMessage() = default;
 
+    /**
+     * @brief Return a string with the header of the message
+     * 
+     * @return Message header
+     */
     string pack_header() const;
 
+    /**
+     * @brief Pack the message into a string
+     * 
+     * @return The message
+     */
     virtual string pack() const = 0;
 
+    /**
+     * @brief Get the size of the payload (message without the header)
+     * 
+     * @return uint32_t The payload size
+     */
     virtual uint32_t get_payload_size() const = 0;
 
     const buuid::uuid& get_uuid() const { return uuid_; };

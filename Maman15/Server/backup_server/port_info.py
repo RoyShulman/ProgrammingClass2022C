@@ -10,11 +10,18 @@ class PortInfoFileNotFound(Exception):
 
 
 class PortInfo:
+    """
+    The port the server should listen on
+    """
+
     def __init__(self, port: int) -> None:
         self.port = port
 
     @classmethod
     def from_file(cls, filepath: Path = Path("port.info")):
+        """
+        Read the port from a given filepath
+        """
         if not filepath.exists():
             raise PortInfoFileNotFound(filepath)
         try:

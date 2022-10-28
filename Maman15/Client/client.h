@@ -49,6 +49,11 @@ private:
      */
     string get_encrypted_transfer_file(const string& aes_key) const;
 
+    /**
+     * @brief Calculate the checksum for the file the client wants to transfer
+     * 
+     * @return uint32_t The checksum
+     */
     uint32_t get_transfer_file_checksum() const;
 
     static constexpr size_t PUBLIC_KEY_SIZE = 1024;

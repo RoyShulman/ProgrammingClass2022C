@@ -42,7 +42,19 @@ public:
     bool operator!=(const PrivateKeyWrapper& rhs) const;
     friend std::ostream& operator<<(std::ostream& stream, const PrivateKeyWrapper& info);
 
+    /**
+     * @brief Get the public key bytes
+     * 
+     * @return string The public key
+     */
     string get_public() const;
+
+    /**
+     * @brief Decrypt the given cipher using the private key
+     * 
+     * @param cipher - Bytes to decrypt
+     * @return The decrypted content
+     */
     string decrypt(const string& cipher) const;
 
 private:

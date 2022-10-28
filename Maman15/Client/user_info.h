@@ -19,6 +19,11 @@ public:
     InvalidUserInfoFile(const bfs::path& info_file, const string& error);
 };
 
+/**
+ * @brief Stores information about the user. This fields include:
+ * name, uuid and private key.
+ *
+ */
 class UserInfo {
 private:
     static const size_t NUM_LINES_IN_INFO_FILE_ = 3;
@@ -32,10 +37,26 @@ public:
     UserInfo();
     UserInfo(string name, buuid::uuid uuid, encryption::PrivateKeyWrapper key);
 
+    /**
+     * @brief Read the info from the given file
+     * 
+     * @param info_file - The filename to read from
+     * @return UserInfo 
+     */
     static UserInfo from_file(const bfs::path& info_file = DEFAULT_FILENAME_);
 
+    /**
+     * @brief Check if the default file to read from exists
+     * 
+     * @return bool
+     */
     bool does_file_exist() const { return bfs::exists(DEFAULT_FILENAME_); };
 
+    /**
+     * @brief Save the user information to the given file
+     * 
+     * @param info_file - Filename to save to
+     */
     void save_to_file(const bfs::path& info_file = DEFAULT_FILENAME_) const;
 
     void set_name(string name) { name_ = std::move(name); };

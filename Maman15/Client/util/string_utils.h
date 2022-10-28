@@ -12,10 +12,16 @@ namespace util {
 
 class StringIsNotAValidEndpoint : public invalid_argument {
 public:
-    explicit StringIsNotAValidEndpoint(const string& s);
+    explicit StringIsNotAValidEndpoint(const string& string_endpoint);
 };
 
-bip::tcp::endpoint string_to_endpoint(const string& s);
+/**
+ * @brief Convert a string to the tcp endpoint
+ * 
+ * @param string_endpoint - The string to convert
+ * @return bip::tcp::endpoint 
+ */
+bip::tcp::endpoint string_to_endpoint(const string& string_endpoint);
 
 }
 }  // namespace client
